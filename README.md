@@ -9,4 +9,4 @@ Analyze Kerbal Space Program mods on SpaceDock and Curse repositories.
 - Analyse which mods are available on only SpaceDock and/or Curse
 
 ### Design
-- Pyton 3 with PyQt 5 for the user interface
+- Python 3 with PyQt 5 for the user interface
