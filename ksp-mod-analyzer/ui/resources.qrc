@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/flying.png</file>
+        <file>icons/ksp_mod_analyzer.png</file>
+    </qresource>
+</RCC>
