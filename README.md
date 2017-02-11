@@ -1,7 +1,7 @@
 # KSP Mod Analyzer
 Analyze Kerbal Space Program mods on SpaceDock and Curse repositories.
 
-<img src="https://github.com/akej74/ksp-mod-analyzer/blob/master/screenshots/KSP_Mod_Analyzer_screenshot_1.jpg" width="700">
+<img src="https://github.com/akej74/ksp-mod-analyzer/blob/master/screenshots/ksp_mod_analyzer_screenshot_1.png" width="700">
 
 ### Features
 - Parse SpaceDock and Curse repositories and store data locally in a SQLite database
