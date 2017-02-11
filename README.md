@@ -9,7 +9,7 @@ Analyze Kerbal Space Program mods on SpaceDock and Curse repositories.
 - Analyse which mods are available on only SpaceDock and/or Curse
 
 ### Stand-alone release
-A stand-alone version of KSP Mod Analyzer can be downloaded from the "Relases" tab. Built with PyInstaller and can be run without having Python installed.
+A stand-alone version of KSP Mod Analyzer can be downloaded from the "Releases" tab. Built with PyInstaller and can be run without having Python installed.
 
 ### Design
 - Python 3 with PyQt 5 for the user interface
