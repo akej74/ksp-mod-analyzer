@@ -148,11 +148,10 @@ def clean(list):
         # Apply the regexp
         clean_item = re.sub(regexp, '', clean_item)
 
-        # TODO: Fix this regexp, doesn't work do find "(" and ")" at the beginning of a string
         # Regexp for removing all info enclosed in () at the start of the string, e.g. (0.90) etc
-        #regexp = re.compile(r'^\(.*?\)')
+        regexp = re.compile(r'^\(.*?\)')
         # Apply the regexp
-        #clean_item = re.sub(regexp, '', clean_item)
+        clean_item = re.sub(regexp, '', clean_item)
 
         # Strip leading and trailing whitespace again (after regexp cleaning)
         clean_list.append(clean_item.strip())
