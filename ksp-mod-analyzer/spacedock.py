@@ -40,7 +40,7 @@ class SpacedockThread(QtCore.QThread):
         self.wait()
 
     def stop(self):
-        """Stop the running thread gracefully."""
+        """Stops the running thread gracefully."""
 
         print("Stopping SpaceDock thread...")
         self.keep_running = False
@@ -87,7 +87,7 @@ class SpacedockThread(QtCore.QThread):
             self.exception_signal.emit(msg)
 
     def update_spacedock(self):
-        """Update database with data from SpaceDock."""
+        """Updates the database with data from SpaceDock."""
 
         # Get the SpaceDock data
         # "spacedock_data" is a dictionary containing all sub-pages with mods in JSON format
@@ -117,7 +117,7 @@ class SpacedockThread(QtCore.QThread):
             helpers.update_db('SpaceDock', clean_mod_list, self.db_file)
 
     def parse_spacedock(self):
-        """Request SpaceDock for all mods using the API and return a dictionary with the data in JSON format."""
+        """Requests SpaceDock for all mods using the API and returns a dictionary with the data in JSON format."""
 
         # Set initial value (3%) for progress bar to indicate processing has started
         self.notify_progress_signal.emit(3)

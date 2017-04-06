@@ -2,11 +2,13 @@
     settings.py
     -----------
     Implements functions for reading and writing UI configuration using a QSettings object.
+    
+    Currently not in use.
 """
 
 
 def read_settings(config, ui):
-    """Read configuration from the OS repository (Registry in Windows, ini-file in Linux).
+    """Reads configuration from the OS repository (Registry in Windows, ini-file in Linux).
 
     Uses default values if no settings are found.
 
@@ -16,5 +18,5 @@ def read_settings(config, ui):
 
 
 def save_settings(config, ui):
-    """Save current UI configuration to the OS repository, called when exiting the main application"""
+    """Saves the current UI configuration to the OS repository, called when exiting the main application"""
     print("Saving settings...")

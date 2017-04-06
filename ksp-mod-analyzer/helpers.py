@@ -20,7 +20,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 
 def init_database(db_file):
-    """Initialize the SQLite database and create tables if they don't exist."""
+    """Initializes the SQLite database and creates tables if they don't exist."""
 
     with contextlib.closing(sqlite3.connect(db_file, timeout=1)) as con:
         print("Initializing database...")
@@ -33,7 +33,7 @@ def init_database(db_file):
             cur.execute('CREATE TABLE IF NOT EXISTS Total (Id INTEGER PRIMARY KEY, Mod TEXT, SpaceDock TEXT, Curse TEXT)')
 
 def update_total_mods(db_file):
-    """Update the 'Total' table with data from 'SpaceDock' and 'Curse' tables."""
+    """Updates the 'Total' table with data from 'SpaceDock' and 'Curse' tables."""
 
     con = sqlite3.connect(db_file, timeout=1)
     with con:
@@ -71,7 +71,7 @@ def update_total_mods(db_file):
 #         cur.execute(sql)
 
 def update_db(table, mod_list, db_file):
-    """Update database with mod data for SpaceDock, Curse or CKAN (Note: CKAN support is not implemented yet)."""
+    """Updates the database with mod data for SpaceDock, Curse or CKAN (Note: CKAN support is not implemented yet)."""
 
     with contextlib.closing(sqlite3.connect(db_file, timeout=1)) as con:
         with con as cur:
@@ -97,7 +97,7 @@ def update_db(table, mod_list, db_file):
                 print("CKAN database update complete,", len(mod_list), "mods inserted.")
 
 def get_records(table, db_file):
-    """Get number of rows in a table."""
+    """Gets the number of rows in a table."""
 
     # TODO: Rewrite this code to make it more efficient
 
@@ -118,7 +118,7 @@ def get_records(table, db_file):
         return rows
 
 def get_file_modification_time(file_name):
-    """Get the 'last modification' date and time for a file."""
+    """Gets the 'last modification' date and time for a file."""
 
     try:
         mtime = os.path.getmtime(file_name)
@@ -130,9 +130,9 @@ def get_file_modification_time(file_name):
     return last_modified_date
 
 def clean(list):
-    """Clean a list of items:
+    """Cleans a list of items:
        - Remove leading and trailing whitespace
-       - Remove leading version info, e.g. [x.y.z], [1.2]
+       - Remove leading version info, e.g. [x.y.z], [1.2], (0.90)
        - Sort the list non case sensitive
     """
 
@@ -211,7 +211,7 @@ def exception_message_qthread(excType, excValue, tracebackobj):
     return msg
 
 def show_error(message):
-    """Display "message" in a "Critical error" message box with 'OK' button."""
+    """Displays "message" in a "Critical error" message box with 'OK' button."""
 
     # Create a QMessagebox
     message_box = QtWidgets.QMessageBox()
@@ -227,7 +227,7 @@ def show_error(message):
     message_box.exec_()
 
 def show_notification(message):
-    """Display "message" in a "Information" message box with 'OK' button."""
+    """Displays "message" in a "Information" message box with 'OK' button."""
 
     # Create a QMessagebox
     message_box = QtWidgets.QMessageBox()
@@ -243,14 +243,14 @@ def show_notification(message):
     message_box.exec_()
 
 def write_to_disk(filename, data):
-    """Serialize data with pickle and write to disk."""
+    """Serializes data with pickle and writes to disk."""
 
     with open(filename, "wb") as f:
         print("Writing file", filename)
         pickle.dump(data, f)
 
 def read_from_disk(filename):
-    """Read data from disk and un-serialize with pickle."""
+    """Reads data from disk and un-serializes with pickle."""
 
     with open(filename, "rb") as f:
         print("Reading from file", filename)

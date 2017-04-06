@@ -86,7 +86,7 @@ class CurseThread(QtCore.QThread):
             self.exception_signal.emit(msg)
 
     def update_curse(self):
-        """Update database with data from Curse."""
+        """Updates the database with data from Curse."""
 
         # Check if cached data on disk should be used
         if self.use_cache:
@@ -153,7 +153,7 @@ class CurseThread(QtCore.QThread):
             helpers.update_db('Curse', clean_mod_list, self.db_file)
 
     def get_page(self, url):
-        """Get a web page using the session object and return a soup object."""
+        """Gets a web page using the session object and return a soup object."""
 
         try:
             response = self.session.get(url)
@@ -167,7 +167,7 @@ class CurseThread(QtCore.QThread):
 
 
 def find_max_page(soup):
-    """Find the number of sub-pages in the HTML code, it's a two digit number... E.g. "1 2 3 4 5 ... 37"""
+    """Finds the number of sub-pages in the HTML code, it's a two digit number... E.g. "1 2 3 4 5 ... 37"""
 
     # Using a regexp, find HREF's with two digits, e.g. <a href="/ksp-mods/kerbal?page=37" class="b-pagination-item">
     tags = soup.find_all('a', href=re.compile('^/ksp-mods/kerbal\?page\=[0-9][0-9]'))
@@ -184,7 +184,7 @@ def find_max_page(soup):
     return pages
 
 def get_curse_mods(soup):
-    """Parse the BeautifulSoup object and return a list of mods."""
+    """Parses the BeautifulSoup object and returns a list of mods."""
 
     # Empty list to hold the mods
     mod_list = []

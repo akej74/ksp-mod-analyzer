@@ -21,7 +21,7 @@ PROGRAM_VERSION = "1.0.0"
 DISK_CACHE = False
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
-    """Create the UI, based on PyQt5.
+    """Creates the UI, based on PyQt5.
 
     The UI elements are defined in "mainwindow.py" and resource file "resources_rc.py", both created in QT Designer.
 
@@ -72,7 +72,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
 
     def setup_ui_logic(self):
-        """Define QT signal and slot connections and initialize UI values."""
+        """Defines QT signal and slot connections and initializes UI values."""
 
         # Connect push button events
         self.ui.pushButtonUpdateSpacedock.clicked.connect(self.update_spacedock)
@@ -109,21 +109,21 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
 
     def update_spacedock(self):
-        """Update UI and start SpaceDock processing thread."""
+        """Updates the UI and starts SpaceDock processing thread."""
 
         self.ui.pushButtonUpdateSpacedock.setDisabled(True)
         self.ui.pushButtonCancelSpacedock.setEnabled(True)
         self.spacedock_thread.start()
 
     def update_curse(self):
-        """Update UI and start SpaceDock processing thread."""
+        """Updates the UI and starts SpaceDock processing thread."""
 
         self.ui.pushButtonUpdateCurse.setDisabled(True)
         self.ui.pushButtonCancelCurse.setEnabled(True)
         self.curse_thread.start()
 
     def finished_processing(self, sender):
-        """Update UI and database model after threads have completed the run."""
+        """Updates the UI and database model after threads have completed the run."""
 
         # Update the data view
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
@@ -140,7 +140,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.update_status()
 
     def cancelled_processing(self, sender):
-        """Update UI after a cancellation."""
+        """Updates the UI after a cancellation."""
 
         if sender == 'spacedock':
             self.ui.progressBarSpacedock.setValue(0)
@@ -161,11 +161,13 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.ui.comboBoxSelectData.setCurrentIndex(0)
 
     def update_db_model(self, query_type):
-        """Define a model view for the database, used by the QTableView.
+        """Defines a model view for the database, used by the QTableView.
 
         Called in the following situations:
+            - At application start
             - The drop down box in the 'Data' field is changed
-            - After data collection from SpaceDock and/or Curse"""
+            - After data collection from SpaceDock and/or Curse
+        """
 
         # Open the database
         # TODO: Investigate if a context manager can be used for QtSQL databases
@@ -214,7 +216,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.qt_db.close()
 
     def update_status(self):
-        """ Update data in 'Status' group box."""
+        """Updates the data in 'Status' group box."""
 
         # Check if SpaceDock data file exists and update UI accordingly
         if os.path.isfile('spacedock.data'):
@@ -237,11 +239,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.labelLastUpdateCurse.setText('<font color="Red">---')
 
     def closeEvent(self, event):
-        """Save UI settings, then exit the application.
+        """Saves UI settings, then exit the application.
         Called when closing the application window.
         """
 
-        # Stop the running thread
+        # Stop the running threads
         if self.spacedock_thread.isRunning():
             print("Stopping SpaceDock thread...")
             self.spacedock_thread.stop()
@@ -257,8 +259,9 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         event.accept()
 
     def thread_exception_handling(self, msg):
-        """Display an error message with details about the exception.
-        Called when an exception occurs in a thread."""
+        """Displays an error message with details about the exception.
+        Called when an exception occurs in a thread.
+        """
 
         # Show error message
         helpers.show_error(msg)
