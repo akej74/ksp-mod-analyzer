@@ -20,6 +20,7 @@ PROGRAM_VERSION = "1.0.0"
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
 DISK_CACHE = False
 
+
 class KspModAnalyzer(QtWidgets.QMainWindow):
     """Creates the UI, based on PyQt5.
 
@@ -75,10 +76,8 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         """Defines QT signal and slot connections and initializes UI values."""
 
         # Connect push button events
-        self.ui.pushButtonUpdateSpacedock.clicked.connect(self.update_spacedock)
-        self.ui.pushButtonUpdateCurse.clicked.connect(self.update_curse)
-        self.ui.pushButtonCancelSpacedock.clicked.connect(self.spacedock_thread.stop)
-        self.ui.pushButtonCancelCurse.clicked.connect(self.curse_thread.stop)
+        self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
+        self.ui.pushButtonCurse.clicked.connect(self.update_curse)
 
         # Connect combo box event and update database model with current selected value in the combo box
         self.ui.comboBoxSelectData.currentIndexChanged.connect(
@@ -99,11 +98,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Connect progress bar signals
         self.spacedock_thread.notify_progress_signal.connect(lambda i: self.ui.progressBarSpacedock.setValue(i))
-        self.curse_thread.notify_progress_signal.connect(lambda i:self.ui.progressBarCurse.setValue(i))
-
-        # Disable "Cancel" buttons
-        self.ui.pushButtonCancelSpacedock.setDisabled(True)
-        self.ui.pushButtonCancelCurse.setDisabled(True)
+        self.curse_thread.notify_progress_signal.connect(lambda i: self.ui.progressBarCurse.setValue(i))
 
         # Update data model for the QTableView
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
@@ -111,30 +106,41 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
     def update_spacedock(self):
         """Updates the UI and starts SpaceDock processing thread."""
 
-        self.ui.pushButtonUpdateSpacedock.setDisabled(True)
-        self.ui.pushButtonCancelSpacedock.setEnabled(True)
+        # Change functionality of "Update SpaceDock" button to "Cancel"
+        self.ui.pushButtonSpacedock.disconnect()
+        self.ui.pushButtonSpacedock.clicked.connect(self.spacedock_thread.stop)
+        self.ui.pushButtonSpacedock.setText('Cancel')
+
         self.spacedock_thread.start()
 
     def update_curse(self):
         """Updates the UI and starts SpaceDock processing thread."""
 
-        self.ui.pushButtonUpdateCurse.setDisabled(True)
-        self.ui.pushButtonCancelCurse.setEnabled(True)
+        # Change functionality of "Update Curse" button to "Cancel"
+        self.ui.pushButtonCurse.disconnect()
+        self.ui.pushButtonCurse.clicked.connect(self.curse_thread.stop)
+        self.ui.pushButtonCurse.setText('Cancel')
+
         self.curse_thread.start()
 
     def finished_processing(self, sender):
         """Updates the UI and database model after threads have completed the run."""
 
+        print('finished_processing called from ' + sender)
+
         # Update the data view
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
 
-        # Enable and disable buttons
+        # Update button functionality
         if sender == 'spacedock':
-            self.ui.pushButtonCancelSpacedock.setDisabled(True)
-            self.ui.pushButtonUpdateSpacedock.setEnabled(True)
+            self.ui.pushButtonSpacedock.disconnect()
+            self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
+            self.ui.pushButtonSpacedock.setText('Update SpaceDock')
+
         if sender == 'curse':
-            self.ui.pushButtonCancelCurse.setDisabled(True)
-            self.ui.pushButtonUpdateCurse.setEnabled(True)
+            self.ui.pushButtonCurse.disconnect()
+            self.ui.pushButtonCurse.clicked.connect(self.update_curse)
+            self.ui.pushButtonCurse.setText('Update Curse')
 
         # Update 'Status' group box
         self.update_status()
@@ -142,16 +148,22 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
     def cancelled_processing(self, sender):
         """Updates the UI after a cancellation."""
 
+        print('cancelled_processing called from ' + sender)
+
         if sender == 'spacedock':
             self.ui.progressBarSpacedock.setValue(0)
-            self.ui.pushButtonCancelSpacedock.setDisabled(True)
-            self.ui.pushButtonUpdateSpacedock.setEnabled(True)
+            self.ui.pushButtonSpacedock.disconnect()
+            self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
+            self.ui.pushButtonSpacedock.setText('Update SpaceDock')
+
             #helpers.drop_data('SpaceDock', self.db_file)
 
         if sender == 'curse':
             self.ui.progressBarCurse.setValue(0)
-            self.ui.pushButtonCancelCurse.setDisabled(True)
-            self.ui.pushButtonUpdateCurse.setEnabled(True)
+            self.ui.pushButtonCurse.disconnect()
+            self.ui.pushButtonCurse.clicked.connect(self.update_curse)
+            self.ui.pushButtonCurse.setText('Update Curse')
+
             #helpers.drop_data('Curse', self.db_file)
 
         # Update 'Status' group box
