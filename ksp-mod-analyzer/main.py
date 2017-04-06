@@ -18,7 +18,7 @@ from ui.mainwindow import Ui_MainWindow
 PROGRAM_VERSION = "1.0.0"
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
-DISK_CACHE = False
+DISK_CACHE = True
 
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
@@ -191,7 +191,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Define SQL queries
         if query_type == 'All mods':
-            sql = 'SELECT Mod, Spacedock, Curse FROM Total'
+            sql = 'SELECT Mod, Spacedock, Curse, CKAN FROM Total'
         elif query_type == 'All mods on SpaceDock':
             sql = 'SELECT Mod FROM Total WHERE SpaceDock = "OK"'
         elif query_type == 'All mods on Curse':
