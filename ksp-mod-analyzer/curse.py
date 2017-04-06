@@ -60,7 +60,7 @@ class CurseThread(QtCore.QThread):
             # Get data from Curse and update database table 'Curse'
             self.update_curse()
 
-            # Update databse table 'Total' with data from 'SpaceDock' and 'Curse' tables.
+            # Update database table 'Total' with data from 'SpaceDock' and 'Curse' tables.
             helpers.update_total_mods(self.db_file)
 
             # Only emit finished signal if job was not cancelled (i.e. 'keep_running' is still True)
