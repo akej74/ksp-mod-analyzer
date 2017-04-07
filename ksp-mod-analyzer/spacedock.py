@@ -111,7 +111,7 @@ class SpacedockThread(QtCore.QThread):
 
             # Clean the list
             print("Clean SpaceDock mods...")
-            clean_mod_list = helpers.clean(mod_list)
+            clean_mod_list = helpers.clean_list(mod_list)
 
             # Update the database
             helpers.update_db('SpaceDock', clean_mod_list, self.db_file)
