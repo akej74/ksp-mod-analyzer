@@ -129,14 +129,14 @@ def get_file_modification_time(file_name):
     last_modified_date = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S')
     return last_modified_date
 
-def clean(list):
+def clean_list(list):
     """Cleans a list of items:
        - Remove leading and trailing whitespace
        - Remove leading version info, e.g. [x.y.z], [1.2], (0.90)
        - Sort the list non case sensitive
     """
 
-    clean_list = []
+    cleaned_list = []
 
     for item in list:
         # Strip leading and trailing whitespace
@@ -144,22 +144,38 @@ def clean(list):
 
         # Regexp for removing all info enclosed in [] at the start of the string, e.g. [1.0.5], [1.x] etc
         regexp = re.compile(r'^\[.*?\]')
-
-        # Apply the regexp
         clean_item = re.sub(regexp, '', clean_item)
 
         # Regexp for removing all info enclosed in () at the start of the string, e.g. (0.90) etc
         regexp = re.compile(r'^\(.*?\)')
-        # Apply the regexp
         clean_item = re.sub(regexp, '', clean_item)
 
         # Strip leading and trailing whitespace again (after regexp cleaning)
-        clean_list.append(clean_item.strip())
+        cleaned_list.append(clean_item.strip())
 
         # Sort the list non case sensitive
-        clean_list.sort(key=str.lower)
+        cleaned_list.sort(key=str.lower)
 
-    return clean_list
+    return cleaned_list
+
+def clean_item(item):
+    """Cleans an item (string):
+       - Remove leading and trailing whitespace
+       - Remove leading version info, e.g. [x.y.z], [1.2], (0.90)
+    """
+
+    # Strip leading and trailing whitespace
+    cleaned_item = item.strip()
+
+    # Regexp for removing all info enclosed in [] at the start of the string, e.g. [1.0.5], [1.x] etc
+    regexp = re.compile(r'^\[.*?\]')
+    cleaned_item = re.sub(regexp, '', cleaned_item)
+
+    # Regexp for removing all info enclosed in () at the start of the string, e.g. (0.90) etc
+    regexp = re.compile(r'^\(.*?\)')
+    cleaned_item = re.sub(regexp, '', cleaned_item)
+
+    return cleaned_item
 
 def excepthook(excType, excValue, tracebackobj):
     """Rewritten "excepthook", to display a message box with details about the unhandled exception.
