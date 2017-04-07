@@ -18,7 +18,7 @@ from ui.mainwindow import Ui_MainWindow
 PROGRAM_VERSION = "1.0.0"
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
-DISK_CACHE = True
+DISK_CACHE = False
 
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
