@@ -27,13 +27,13 @@ def init_database(db_file):
         print()
         with con as cur:
             # Create tables
-            cur.execute('CREATE TABLE IF NOT EXISTS SpaceDock (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS Curse (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS CKAN (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS SpaceDock (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS Curse (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS CKAN (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
             cur.execute('CREATE TABLE IF NOT EXISTS Total (Id INTEGER PRIMARY KEY, Mod TEXT, SpaceDock TEXT, Curse TEXT, CKAN TEXT)')
 
 def update_total_mods(db_file):
-    """Updates the 'Total' table with data from 'SpaceDock' and 'Curse' tables."""
+    """Updates the 'Total' table with data from 'SpaceDock', 'Curse' and 'CKAN' tables."""
 
     con = sqlite3.connect(db_file, timeout=1)
     with con:
@@ -48,20 +48,26 @@ def update_total_mods(db_file):
         cur.execute('SELECT Mod FROM Curse')
         curse_list = [i[0] for i in cur.fetchall()]
 
+        # Get a list of all CKAN mods
+        #cur.execute('SELECT Mod FROM CKAN')
+        #ckan_list = [i[0] for i in cur.fetchall()]
+
         # Get a sorted list of all unique mods (duplicates removed by the set)
         total_mods = sorted(set(spacedock_list + curse_list), key=str.lower)
         print("Total mods", len(total_mods))
 
         # Update 'Total' table with all available mods
         for mod in total_mods:
-            cur.execute('INSERT INTO Total (Mod, SpaceDock, Curse) VALUES (:mod, "Not available", "Not available")', {'mod': mod})
+            cur.execute('INSERT INTO Total (Mod, SpaceDock, Curse, CKAN) VALUES (:mod, "Not available", "Not available", "Not available")', {'mod': mod})
 
-        # Update 'Total' table with status of mod availability in SpaceDock and Curse repositories
+        # Update 'Total' table with status of mod availability in SpaceDock, Curse and CKAN repositories
         for mod in total_mods:
             if mod in spacedock_list:
                 cur.execute('UPDATE Total SET Spacedock = "OK" WHERE Mod =:mod', {'mod': mod})
             if mod in curse_list:
                 cur.execute('UPDATE Total SET Curse = "OK" WHERE Mod =:mod', {'mod': mod})
+            #if mod in ckan_list:
+            #    cur.execute('UPDATE Total SET CKAN = "OK" WHERE Mod =:mod', {'mod': mod})
 
 # def drop_data(table, db_file):
 #     con = sqlite3.connect(db_file, timeout=1)
@@ -70,31 +76,44 @@ def update_total_mods(db_file):
 #         sql = 'DELETE FROM ' + table
 #         cur.execute(sql)
 
-def update_db(table, mod_list, db_file):
-    """Updates the database with mod data for SpaceDock, Curse or CKAN (Note: CKAN support is not implemented yet)."""
+def update_db(table, mods, db_file):
+    """Updates the database with mod data for SpaceDock, Curse or CKAN."""
+
+    # with contextlib.closing(sqlite3.connect(db_file, timeout=1)) as con:
+    #     with con as cur:
+    #         if table == "SpaceDock":
+    #             print("Updating SpaceDock database...")
+    #             cur.execute('DELETE FROM SpaceDock')
+    #             for mod in mod_list:
+    #                 cur.execute('INSERT INTO SpaceDock (Mod) VALUES (:mod)', {'mod': mod})
+    #             print("SpaceDock database update complete,", len(mod_list), "mods inserted.")
+    #
+    #         if table == "Curse":
+    #             print("Updating Curse database...")
+    #             cur.execute('DELETE FROM Curse')
+    #             for mod in mod_list:
+    #                 cur.execute('INSERT INTO Curse (Mod) VALUES (:mod)', {'mod': mod})
+    #             print("Curse database update complete,", len(mod_list), "mods inserted.")
+    #
+    #         if table == "CKAN":
+    #             print("Updating CKAN database...")
+    #             cur.execute('DELETE FROM CKAN')
+    #             for mod in mod_list:
+    #                 cur.execute('INSERT INTO CKAN (Mod) VALUES (:mod)', {'mod': mod})
+    #             print("CKAN database update complete,", len(mod_list), "mods inserted.")
 
     with contextlib.closing(sqlite3.connect(db_file, timeout=1)) as con:
-        with con as cur:
-            if table == "SpaceDock":
-                print("Updating SpaceDock database...")
-                cur.execute('DELETE FROM SpaceDock')
-                for mod in mod_list:
-                    cur.execute('INSERT INTO SpaceDock (Mod) VALUES (:mod)', {'mod': mod})
-                print("SpaceDock database update complete,", len(mod_list), "mods inserted.")
-
-            if table == "Curse":
+         with con as cur:
+            if table == 'Curse':
                 print("Updating Curse database...")
                 cur.execute('DELETE FROM Curse')
-                for mod in mod_list:
-                    cur.execute('INSERT INTO Curse (Mod) VALUES (:mod)', {'mod': mod})
-                print("Curse database update complete,", len(mod_list), "mods inserted.")
+                for mod_name in sorted(mods.keys()):
+                    cur.execute('INSERT INTO Curse (Mod, KSP_version, Last_updated) VALUES (:mod, :version, :last_updated)',
+                                {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1]})
 
-            if table == "CKAN":
-                print("Updating CKAN database...")
-                cur.execute('DELETE FROM CKAN')
-                for mod in mod_list:
-                    cur.execute('INSERT INTO CKAN (Mod) VALUES (:mod)', {'mod': mod})
-                print("CKAN database update complete,", len(mod_list), "mods inserted.")
+
+
+
 
 def get_records(table, db_file):
     """Gets the number of rows in a table."""
