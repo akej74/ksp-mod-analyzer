@@ -40,7 +40,7 @@ class CurseThread(QtCore.QThread):
         self.wait()
 
     def stop(self):
-        """Stop the running thread gracefully."""
+        """Stops the running thread gracefully."""
 
         print("Stopping Curse thread...")
         self.keep_running = False
@@ -60,7 +60,7 @@ class CurseThread(QtCore.QThread):
             # Get data from Curse and update database table 'Curse'
             self.update_curse()
 
-            # Update database table 'Total' with data from 'SpaceDock' and 'Curse' tables.
+            # Update database table 'Total'
             helpers.update_total_mods(self.db_file)
 
             # Only emit finished signal if job was not cancelled (i.e. 'keep_running' is still True)
@@ -91,11 +91,14 @@ class CurseThread(QtCore.QThread):
         # Check if cached data on disk should be used
         if self.use_cache:
             # Read mod list from disk
-            clean_mod_list = helpers.read_from_disk("curse.data")
+            mods = helpers.read_from_disk("curse.data")
 
             # Update database
-            helpers.update_db('Curse', clean_mod_list, self.db_file)
+            helpers.update_db('Curse', mods, self.db_file)
         else:
+
+            mods = {}
+
             # Set initial value (3%) for progress bar to indicate processing has started
             self.notify_progress_signal.emit(3)
 
@@ -106,7 +109,9 @@ class CurseThread(QtCore.QThread):
             soup_first_page = self.get_page(curse_init_url)
 
             # Get the list of the mods from the first page
-            mod_list = get_curse_mods(soup_first_page)
+            #mod_list = get_curse_mods(soup_first_page)
+            mods_first_page = get_curse_mods(soup_first_page)
+            mods.update(mods_first_page)
 
             # Find how many sub-pages there are
             pages = find_max_page(soup_first_page)
@@ -136,21 +141,23 @@ class CurseThread(QtCore.QThread):
                         self.notify_progress_signal.emit(progress_bar_interval * page)
 
                     # Get the mods from the current page
-                    new_page_mods = get_curse_mods(new_soup)
+                    mods_new_page = get_curse_mods(new_soup)
 
                     # Append the mods from the current page to the existing mod list
-                    for mod in new_page_mods:
-                        mod_list.append(mod)
+                    #for mod in new_page_mods:
+                    #    mod_list.append(mod)
+
+                    mods.update(mods_new_page)
 
             # Clean the list
-            print("Clean Curse mods...")
-            clean_mod_list = helpers.clean(mod_list)
+            #print("Clean Curse mods...")
+            #clean_mod_list = helpers.clean_list(mod_list)
 
             # Write data to file
-            helpers.write_to_disk("curse.data", clean_mod_list)
+            helpers.write_to_disk("curse.data", mods)
 
             # Update database
-            helpers.update_db('Curse', clean_mod_list, self.db_file)
+            helpers.update_db('Curse', mods, self.db_file)
 
     def get_page(self, url):
         """Gets a web page using the session object and return a soup object."""
@@ -184,19 +191,29 @@ def find_max_page(soup):
     return pages
 
 def get_curse_mods(soup):
-    """Parses the BeautifulSoup object and returns a list of mods."""
+    """Parses the BeautifulSoup object and returns a dict of mods."""
 
-    # Empty list to hold the mods
-    mod_list = []
+    # Empty dict to hold the mod data
+    mods = {}
 
-    # Get all "H4" tags as that tag is used for the mod names
-    # E.g. <h4><a href="/ksp-mods/kerbal/223900-kerbal-attachment-system-kas">Kerbal Attachment System (KAS)</a></h4>
-    mods = soup.select('h4')
+    # One UL tag per mod
+    for ultag in soup.find_all('ul', 'group'):
+        # Eight LI tags with data for each mod
+        for litag in ultag.find_all('li'):
+            mod_name_tag = litag.find('h4')
+            if mod_name_tag:
+                mod_name = mod_name_tag.get_text()
 
-    # Append all mods to the list
-    for mod in mods:
-        mod_list.append(mod.getText())
+            ksp_version_tag = litag.find_all(text=re.compile(r'Supports'))
+            if ksp_version_tag:
+                ksp_version = ksp_version_tag[0][10:]
+            last_updated_tag = litag.find_all(text=re.compile(r'Updated'))
+            if last_updated_tag:
+                last_updated = last_updated_tag[0][8:]
 
-    return mod_list
+        print(mod_name)
+        # Update values after all LI tags have been analyzed
+        mods[mod_name] = [ksp_version, last_updated]
 
+    return mods
 
