@@ -41,19 +41,19 @@ def update_total_mods(db_file):
         cur.execute('DELETE FROM Total')
 
         # Get a list of all SpaceDock mods
-        cur.execute('SELECT Mod FROM SpaceDock')
-        spacedock_list = [i[0] for i in cur.fetchall()]
+        cur.execute('SELECT Mod, KSP_version, Last_updated FROM SpaceDock')
+        #spacedock_list = [i[0] for i in cur.fetchall()]
+        spacedock = {i[0]: [i[1], i[2]] for i in cur.fetchall()}
 
         # Get a list of all Curse mods
-        cur.execute('SELECT Mod FROM Curse')
-        curse_list = [i[0] for i in cur.fetchall()]
+        cur.execute('SELECT Mod, KSP_version, Last_updated FROM Curse')
+        #curse_list = [i[0] for i in cur.fetchall()]
+        curse = {i[0]: [i[1], i[2]] for i in cur.fetchall()}
 
-        # Get a list of all CKAN mods
-        #cur.execute('SELECT Mod FROM CKAN')
-        #ckan_list = [i[0] for i in cur.fetchall()]
+        # TODO: Add CKAN
 
         # Get a sorted list of all unique mods (duplicates removed by the set)
-        total_mods = sorted(set(spacedock_list + curse_list), key=str.lower)
+        total_mods = sorted(set(list(spacedock.keys()) + list(curse.keys())), key=str.lower)
         print("Total mods", len(total_mods))
 
         # Update 'Total' table with all available mods
@@ -63,10 +63,10 @@ def update_total_mods(db_file):
 
         # Update 'Total' table with status of mod availability in SpaceDock, Curse and CKAN repositories
         for mod in total_mods:
-            if mod in spacedock_list:
-                cur.execute('UPDATE Total SET Spacedock = "OK" WHERE Mod =:mod', {'mod': mod})
-            if mod in curse_list:
-                cur.execute('UPDATE Total SET Curse = "OK" WHERE Mod =:mod', {'mod': mod})
+            if mod in spacedock.keys():
+                cur.execute('UPDATE Total SET Spacedock =:status WHERE Mod =:mod', {'mod': mod, 'status': 'OK (' + spacedock[mod][0] + ')'})
+            if mod in curse.keys():
+                cur.execute('UPDATE Total SET Curse =:status WHERE Mod =:mod', {'mod': mod, 'status': 'OK (' + curse[mod][0] + ')'})
             #if mod in ckan_list:
             #    cur.execute('UPDATE Total SET CKAN = "OK" WHERE Mod =:mod', {'mod': mod})
 
@@ -79,29 +79,6 @@ def update_total_mods(db_file):
 
 def update_db(table, mods, db_file):
     """Updates the database with mod data for SpaceDock, Curse or CKAN."""
-
-    # with contextlib.closing(sqlite3.connect(db_file, timeout=1)) as con:
-    #     with con as cur:
-    #         if table == "SpaceDock":
-    #             print("Updating SpaceDock database...")
-    #             cur.execute('DELETE FROM SpaceDock')
-    #             for mod in mod_list:
-    #                 cur.execute('INSERT INTO SpaceDock (Mod) VALUES (:mod)', {'mod': mod})
-    #             print("SpaceDock database update complete,", len(mod_list), "mods inserted.")
-    #
-    #         if table == "Curse":
-    #             print("Updating Curse database...")
-    #             cur.execute('DELETE FROM Curse')
-    #             for mod in mod_list:
-    #                 cur.execute('INSERT INTO Curse (Mod) VALUES (:mod)', {'mod': mod})
-    #             print("Curse database update complete,", len(mod_list), "mods inserted.")
-    #
-    #         if table == "CKAN":
-    #             print("Updating CKAN database...")
-    #             cur.execute('DELETE FROM CKAN')
-    #             for mod in mod_list:
-    #                 cur.execute('INSERT INTO CKAN (Mod) VALUES (:mod)', {'mod': mod})
-    #             print("CKAN database update complete,", len(mod_list), "mods inserted.")
 
     with contextlib.closing(sqlite3.connect(db_file, timeout=1)) as con:
          with con as cur:
@@ -118,6 +95,14 @@ def update_db(table, mods, db_file):
                 cur.execute('DELETE FROM SpaceDock')
                 for mod_name in sorted(mods.keys()):
                     cur.execute('INSERT INTO SpaceDock (Mod, KSP_version, Last_updated) '
+                                'VALUES (:mod, :version, :last_updated)',
+                                {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1]})
+
+            if table == 'CKAN':
+                print("Updating CKAN database...")
+                cur.execute('DELETE FROM CKAN')
+                for mod_name in sorted(mods.keys()):
+                    cur.execute('INSERT INTO CKAN (Mod, KSP_version, Last_updated) '
                                 'VALUES (:mod, :version, :last_updated)',
                                 {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1]})
 
