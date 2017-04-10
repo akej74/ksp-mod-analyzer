@@ -114,11 +114,11 @@ def get_records(table, db_file):
     with con:
         cur = con.cursor()
         if table == 'SpaceDock':
-            cur.execute('SELECT COUNT(Mod) FROM Total WHERE SpaceDock = "OK"')
+            cur.execute('SELECT COUNT(Mod) FROM Total WHERE SpaceDock LIKE "OK%"')
             rows = cur.fetchone()[0]
 
         elif table == 'Curse':
-            cur.execute('SELECT COUNT(Mod) FROM Total WHERE Curse = "OK"')
+            cur.execute('SELECT COUNT(Mod) FROM Total WHERE Curse LIKE "OK%"')
             rows = cur.fetchone()[0]
 
         else:
