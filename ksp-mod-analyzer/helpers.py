@@ -58,7 +58,8 @@ def update_total_mods(db_file):
 
         # Update 'Total' table with all available mods
         for mod in total_mods:
-            cur.execute('INSERT INTO Total (Mod, SpaceDock, Curse, CKAN) VALUES (:mod, "Not available", "Not available", "Not available")', {'mod': mod})
+            cur.execute('INSERT INTO Total (Mod, SpaceDock, Curse, CKAN) '
+                        'VALUES (:mod, "Not available", "Not available", "Not available")', {'mod': mod})
 
         # Update 'Total' table with status of mod availability in SpaceDock, Curse and CKAN repositories
         for mod in total_mods:
@@ -108,17 +109,21 @@ def update_db(table, mods, db_file):
                 print("Updating Curse database...")
                 cur.execute('DELETE FROM Curse')
                 for mod_name in sorted(mods.keys()):
-                    cur.execute('INSERT INTO Curse (Mod, KSP_version, Last_updated) VALUES (:mod, :version, :last_updated)',
+                    cur.execute('INSERT INTO Curse (Mod, KSP_version, Last_updated) '
+                                'VALUES (:mod, :version, :last_updated)',
                                 {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1]})
 
-
-
+            if table == 'SpaceDock':
+                print("Updating SpaceDock database...")
+                cur.execute('DELETE FROM SpaceDock')
+                for mod_name in sorted(mods.keys()):
+                    cur.execute('INSERT INTO SpaceDock (Mod, KSP_version, Last_updated) '
+                                'VALUES (:mod, :version, :last_updated)',
+                                {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1]})
 
 
 def get_records(table, db_file):
     """Gets the number of rows in a table."""
-
-    # TODO: Rewrite this code to make it more efficient
 
     con = sqlite3.connect(db_file, timeout=1)
     with con:
@@ -193,6 +198,9 @@ def clean_item(item):
     # Regexp for removing all info enclosed in () at the start of the string, e.g. (0.90) etc
     regexp = re.compile(r'^\(.*?\)')
     cleaned_item = re.sub(regexp, '', cleaned_item)
+
+    # Strip leading and trailing whitespace again (after regexp cleaning)
+    cleaned_item = cleaned_item.strip()
 
     return cleaned_item
 
