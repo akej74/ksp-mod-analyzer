@@ -15,11 +15,10 @@ import settings
 import spacedock
 from ui.mainwindow import Ui_MainWindow
 
-PROGRAM_VERSION = "1.0.0"
+PROGRAM_VERSION = "1.1.0"
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
-DISK_CACHE = False
-
+DISK_CACHE = True
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
     """Creates the UI, based on PyQt5.
@@ -62,8 +61,8 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         helpers.init_database(self.db_file)
 
         # QThreads for fetching data from SpaceDock and Curse
-        self.spacedock_thread = spacedock.SpacedockThread(self.db_file, use_cache=DISK_CACHE)
-        self.curse_thread = curse.CurseThread(self.db_file, use_cache=DISK_CACHE)
+        self.spacedock_thread = spacedock.SpacedockThread(db_file=self.db_file, use_cache=DISK_CACHE)
+        self.curse_thread = curse.CurseThread(db_file=self.db_file, use_cache=DISK_CACHE)
 
         # Connect signals and slots and initialize UI values
         self.setup_ui_logic()
@@ -126,8 +125,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
     def finished_processing(self, sender):
         """Updates the UI and database model after threads have completed the run."""
 
-        print('finished_processing called from ' + sender)
-
         # Update the data view
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
 
@@ -147,8 +144,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
     def cancelled_processing(self, sender):
         """Updates the UI after a cancellation."""
-
-        print('cancelled_processing called from ' + sender)
 
         if sender == 'spacedock':
             self.ui.progressBarSpacedock.setValue(0)
@@ -210,11 +205,17 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # Configure the QTableView to use the model
         self.ui.tableView.setModel(DBModel)
 
+        # Set headers to be left aligned
+        #self.ui.tableView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
+
         # Set all columns to stretch to available width
-        self.ui.tableView.horizontalHeader().setSectionResizeMode(1)
+        self.ui.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
         # Set first column to auto resize to contents
-        self.ui.tableView.horizontalHeader().setSectionResizeMode(0, 3)
+        #self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+
+        self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Interactive)
+        self.ui.tableView.horizontalHeader().resizeSection(0, 400)
 
         # Fetch all available records
         while DBModel.canFetchMore():
@@ -249,6 +250,18 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         else:
             self.ui.labelCurseMods.setText('<font color="Red">---')
             self.ui.labelLastUpdateCurse.setText('<font color="Red">---')
+
+        # Check if CKAN data file exists and update UI accordingly
+        if os.path.isfile('ckan.data'):
+            curse_records = helpers.get_records('CKAN', self.db_file)
+            curse_last_date = helpers.get_file_modification_time('ckan.data')
+            self.ui.labelCKANMods.setText('<font color="Blue">' + str(curse_records))
+            self.ui.labelLastUpdateCKAN.setText('<font color="Blue">' + str(curse_last_date))
+        else:
+            self.ui.labelCKANMods.setText('<font color="Red">---')
+            self.ui.labelLastUpdateCKAN.setText('<font color="Red">---')
+
+
 
     def closeEvent(self, event):
         """Saves UI settings, then exit the application.
