@@ -188,13 +188,13 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         if query_type == 'All mods':
             sql = 'SELECT Mod, Spacedock, Curse, CKAN FROM Total'
         elif query_type == 'All mods on SpaceDock':
-            sql = 'SELECT Mod FROM Total WHERE SpaceDock = "OK"'
+            sql = 'SELECT Mod, SpaceDock FROM Total WHERE SpaceDock LIKE "OK%"'
         elif query_type == 'All mods on Curse':
-            sql = 'SELECT Mod FROM Total WHERE Curse = "OK"'
+            sql = 'SELECT Mod, Curse FROM Total WHERE Curse LIKE "OK%"'
         elif query_type == 'Mods only on SpaceDock':
-            sql = 'SELECT Mod FROM Total WHERE Spacedock = "OK" AND Curse = "Not available"'
+            sql = 'SELECT Mod, SpaceDock FROM Total WHERE Spacedock LIKE "OK%" AND Curse = "Not available"'
         elif query_type == 'Mods only on Curse':
-            sql = 'SELECT Mod FROM Total WHERE Spacedock = "Not available" AND Curse = "OK"'
+            sql = 'SELECT Mod, Curse FROM Total WHERE Spacedock = "Not available" AND Curse LIKE "OK%"'
         else:
             self.qt_db.close()
             raise Exception('Invalid query type: "' + query_type + '" for QTableView')
