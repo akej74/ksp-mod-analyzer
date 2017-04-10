@@ -57,7 +57,7 @@ class CurseThread(QtCore.QThread):
 
         try:
             print("Starting Curse thread...")
-            # Get data from Curse and update database table 'Curse'
+            # Get data from Curse and update database
             self.update_curse()
 
             # Update database table 'Total'
@@ -96,7 +96,7 @@ class CurseThread(QtCore.QThread):
             # Update database
             helpers.update_db('Curse', mods, self.db_file)
         else:
-
+            # Empty dict to hold all mod data
             mods = {}
 
             # Set initial value (3%) for progress bar to indicate processing has started
@@ -108,8 +108,7 @@ class CurseThread(QtCore.QThread):
             # Get the first Curse page and prepare for HTML parsing (BeautifulSoup object)
             soup_first_page = self.get_page(curse_init_url)
 
-            # Get the list of the mods from the first page
-            #mod_list = get_curse_mods(soup_first_page)
+            # Get the mods from the first page and update the dict
             mods_first_page = get_curse_mods(soup_first_page)
             mods.update(mods_first_page)
 
@@ -143,10 +142,7 @@ class CurseThread(QtCore.QThread):
                     # Get the mods from the current page
                     mods_new_page = get_curse_mods(new_soup)
 
-                    # Append the mods from the current page to the existing mod list
-                    #for mod in new_page_mods:
-                    #    mod_list.append(mod)
-
+                    # Update dict with mods from the current page
                     mods.update(mods_new_page)
 
             # Clean the list
@@ -202,7 +198,7 @@ def get_curse_mods(soup):
         for litag in ultag.find_all('li'):
             mod_name_tag = litag.find('h4')
             if mod_name_tag:
-                mod_name = mod_name_tag.get_text()
+                mod_name = helpers.clean_item(mod_name_tag.get_text())
 
             ksp_version_tag = litag.find_all(text=re.compile(r'Supports'))
             if ksp_version_tag:
@@ -211,7 +207,6 @@ def get_curse_mods(soup):
             if last_updated_tag:
                 last_updated = last_updated_tag[0][8:]
 
-        print(mod_name)
         # Update values after all LI tags have been analyzed
         mods[mod_name] = [ksp_version, last_updated]
 
