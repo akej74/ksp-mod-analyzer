@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1018</width>
-    <height>714</height>
+    <width>1085</width>
+    <height>785</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@ QGroupBox::title {
 QHeaderView::section 
 {
     background-color: rgb(220,255,220);
-    font: 10pt &quot;MS Shell Dlg 2&quot;;
+    font: 9pt &quot;Segoe UI&quot;;
 	font-weight: bold;
 	margin-bottom:4px;
 	margin-top:2px;
@@ -110,6 +110,9 @@ QHeaderView::section
        </item>
        <item row="2" column="0">
         <widget class="QPushButton" name="pushButtonCKAN">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Update CKAN</string>
          </property>
@@ -247,7 +250,7 @@ QHeaderView::section
           <bool>true</bool>
          </property>
          <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>180</number>
+          <number>160</number>
          </attribute>
          <attribute name="horizontalHeaderMinimumSectionSize">
           <number>50</number>

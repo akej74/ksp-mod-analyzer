@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1018, 714)
+        MainWindow.resize(1085, 785)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icons/flying.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -32,7 +32,7 @@ class Ui_MainWindow(object):
 "QHeaderView::section \n"
 "{\n"
 "    background-color: rgb(220,255,220);\n"
-"    font: 10pt \"MS Shell Dlg 2\";\n"
+"    font: 9pt \"Segoe UI\";\n"
 "    font-weight: bold;\n"
 "    margin-bottom:4px;\n"
 "    margin-top:2px;\n"
@@ -69,6 +69,7 @@ class Ui_MainWindow(object):
         self.progressBarCurse.setObjectName("progressBarCurse")
         self.gridLayout.addWidget(self.progressBarCurse, 1, 2, 1, 1)
         self.pushButtonCKAN = QtWidgets.QPushButton(self.groupBoxUpdate)
+        self.pushButtonCKAN.setEnabled(False)
         self.pushButtonCKAN.setObjectName("pushButtonCKAN")
         self.gridLayout.addWidget(self.pushButtonCKAN, 2, 0, 1, 1)
         self.progressBarCKAN = QtWidgets.QProgressBar(self.groupBoxUpdate)
@@ -132,7 +133,7 @@ class Ui_MainWindow(object):
         self.tableView.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.tableView.setAlternatingRowColors(True)
         self.tableView.setObjectName("tableView")
-        self.tableView.horizontalHeader().setDefaultSectionSize(180)
+        self.tableView.horizontalHeader().setDefaultSectionSize(160)
         self.tableView.horizontalHeader().setMinimumSectionSize(50)
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.verticalHeader().setVisible(False)
