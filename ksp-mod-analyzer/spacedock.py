@@ -57,10 +57,10 @@ class SpacedockThread(QtCore.QThread):
 
         try:
             print("Starting SpaceDock thread...")
-            # Get data from SpaceDock and update database table 'SpaceDock'
+            # Get data from SpaceDock and update database
             self.update_spacedock()
 
-            # Update database table 'Total' with data from 'SpaceDock' and 'Curse' tables.
+            # Update database table 'Total'
             helpers.update_total_mods(self.db_file)
 
             # Only emit finished signal if job was not cancelled (i.e. 'keep_running' is still True)
@@ -101,20 +101,23 @@ class SpacedockThread(QtCore.QThread):
 
         if self.keep_running:
             # Empty list to hold all mods
-            mod_list = []
+            #mod_list = []
+            # Empty dict to hold all mod data
+            mods = {}
 
-            # Get all mods from each sub-page and store them in a list
+            # Get all mods from each sub-page and store them in the dict
             for key, value in spacedock_data.items():
                 page = value.json()
-                for mod in page["result"]:
-                    mod_list.append(mod["name"])
+                for mod in page['result']:
+                    mod_name = helpers.clean_item(mod['name'])
+                    ksp_version = mod['versions'][0]['game_version']
+                    last_updated = 'N/A'  # Not available from SpaceDock API
 
-            # Clean the list
-            print("Clean SpaceDock mods...")
-            clean_mod_list = helpers.clean_list(mod_list)
+                    # Update dict
+                    mods[mod_name] = [ksp_version, last_updated]
 
             # Update the database
-            helpers.update_db('SpaceDock', clean_mod_list, self.db_file)
+            helpers.update_db('SpaceDock', mods, self.db_file)
 
     def parse_spacedock(self):
         """Requests SpaceDock for all mods using the API and returns a dictionary with the data in JSON format."""
