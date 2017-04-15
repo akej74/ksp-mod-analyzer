@@ -18,7 +18,7 @@ from ui.mainwindow import Ui_MainWindow
 PROGRAM_VERSION = "1.1.0"
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
-DISK_CACHE = False
+DISK_CACHE = True
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
     """Creates the UI, based on PyQt5.
@@ -188,13 +188,13 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         if query_type == 'All mods':
             sql = 'SELECT Mod, Spacedock, Curse, CKAN, Source, Forum FROM Total'
         elif query_type == 'All mods on SpaceDock':
-            sql = 'SELECT Mod, SpaceDock, Source, Forum FROM Total WHERE SpaceDock LIKE "OK%"'
+            sql = 'SELECT Mod, SpaceDock, Source, Forum FROM Total WHERE SpaceDock IS NOT NULL'
         elif query_type == 'All mods on Curse':
-            sql = 'SELECT Mod, Curse FROM Total WHERE Curse LIKE "OK%"'
+            sql = 'SELECT Mod, Curse FROM Total WHERE Curse IS NOT NULL'
         elif query_type == 'Mods only on SpaceDock':
-            sql = 'SELECT Mod, SpaceDock FROM Total WHERE Spacedock LIKE "OK%" AND Curse = "Not available"'
+            sql = 'SELECT Mod, SpaceDock FROM Total WHERE Spacedock IS NOT NULL AND Curse IS NULL'
         elif query_type == 'Mods only on Curse':
-            sql = 'SELECT Mod, Curse FROM Total WHERE Spacedock = "Not available" AND Curse LIKE "OK%"'
+            sql = 'SELECT Mod, Curse FROM Total WHERE Spacedock IS NULL AND Curse IS NOT NULL'
         else:
             self.qt_db.close()
             raise Exception('Invalid query type: "' + query_type + '" for QTableView')

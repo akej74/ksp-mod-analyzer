@@ -58,8 +58,8 @@ def update_total_mods(db_file):
 
         # Initlialize 'Total' table with all available mods, all other fields "Not available"
         for mod in total_mods:
-            cur.execute('INSERT INTO Total (Mod, SpaceDock, Curse, CKAN) '
-                        'VALUES (:mod, "Not available", "Not available", "Not available")',
+            cur.execute('INSERT INTO Total (Mod) '
+                        'VALUES (:mod)',
                         {'mod': mod})
 
         # Update 'Total' table with status of mod availability in SpaceDock, Curse and CKAN repositories
@@ -69,11 +69,11 @@ def update_total_mods(db_file):
                             'SET Spacedock =:status, Source =:source, Forum =:forum '
                             'WHERE Mod =:mod',
                             {'mod': mod,
-                             'status': 'OK (' + spacedock[mod][0] + ')',
+                             'status': spacedock[mod][0],
                              'source': spacedock[mod][2],
                              'forum': spacedock[mod][3]})
             if mod in curse.keys():
-                cur.execute('UPDATE Total SET Curse =:status WHERE Mod =:mod', {'mod': mod, 'status': 'OK (' + curse[mod][0] + ')'})
+                cur.execute('UPDATE Total SET Curse =:status WHERE Mod =:mod', {'mod': mod, 'status': curse[mod][0]})
 
 
 # def drop_data(table, db_file):
@@ -128,11 +128,11 @@ def get_records(table, db_file):
     with con:
         cur = con.cursor()
         if table == 'SpaceDock':
-            cur.execute('SELECT COUNT(Mod) FROM Total WHERE SpaceDock LIKE "OK%"')
+            cur.execute('SELECT COUNT(Mod) FROM Total WHERE SpaceDock IS NOT NULL')
             rows = cur.fetchone()[0]
 
         elif table == 'Curse':
-            cur.execute('SELECT COUNT(Mod) FROM Total WHERE Curse LIKE "OK%"')
+            cur.execute('SELECT COUNT(Mod) FROM Total WHERE Curse IS NOT NULL')
             rows = cur.fetchone()[0]
 
         else:
