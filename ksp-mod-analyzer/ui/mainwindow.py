@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1085, 785)
+        MainWindow.resize(1124, 785)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icons/flying.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -132,11 +132,11 @@ class Ui_MainWindow(object):
         self.tableView.setSizePolicy(sizePolicy)
         self.tableView.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.tableView.setAlternatingRowColors(True)
-        self.tableView.setSortingEnabled(True)
+        self.tableView.setSortingEnabled(False)
         self.tableView.setObjectName("tableView")
         self.tableView.horizontalHeader().setDefaultSectionSize(160)
         self.tableView.horizontalHeader().setMinimumSectionSize(50)
-        self.tableView.horizontalHeader().setSortIndicatorShown(True)
+        self.tableView.horizontalHeader().setSortIndicatorShown(False)
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.verticalHeader().setVisible(False)
         self.tableView.verticalHeader().setCascadingSectionResizes(False)
