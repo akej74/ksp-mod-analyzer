@@ -30,7 +30,7 @@ def init_database(db_file):
             cur.execute('CREATE TABLE IF NOT EXISTS SpaceDock (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
             cur.execute('CREATE TABLE IF NOT EXISTS Curse (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
             cur.execute('CREATE TABLE IF NOT EXISTS CKAN (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS Total (Id INTEGER PRIMARY KEY, Mod TEXT, SpaceDock TEXT, Curse TEXT, CKAN TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS Total (Id INTEGER PRIMARY KEY, Mod TEXT, SpaceDock TEXT, Curse TEXT, CKAN TEXT, Source TEXT)')
 
 def update_total_mods(db_file):
     """Updates the 'Total' table with data from 'SpaceDock', 'Curse' and 'CKAN' tables."""
@@ -41,12 +41,12 @@ def update_total_mods(db_file):
         cur.execute('DELETE FROM Total')
 
         # Get a list of all SpaceDock mods
-        cur.execute('SELECT Mod, KSP_version, Last_updated FROM SpaceDock')
+        cur.execute('SELECT Mod, KSP_version, Last_updated, Source FROM SpaceDock')
         #spacedock_list = [i[0] for i in cur.fetchall()]
-        spacedock = {i[0]: [i[1], i[2]] for i in cur.fetchall()}
+        spacedock = {i[0]: [i[1], i[2], i[3]] for i in cur.fetchall()}
 
         # Get a list of all Curse mods
-        cur.execute('SELECT Mod, KSP_version, Last_updated FROM Curse')
+        cur.execute('SELECT Mod, KSP_version, Last_updated, Source FROM Curse')
         #curse_list = [i[0] for i in cur.fetchall()]
         curse = {i[0]: [i[1], i[2]] for i in cur.fetchall()}
 
@@ -56,19 +56,22 @@ def update_total_mods(db_file):
         total_mods = sorted(set(list(spacedock.keys()) + list(curse.keys())), key=str.lower)
         print("Total mods", len(total_mods))
 
-        # Update 'Total' table with all available mods
+        # Initlialize 'Total' table with all available mods, all other fields "Not available"
         for mod in total_mods:
             cur.execute('INSERT INTO Total (Mod, SpaceDock, Curse, CKAN) '
-                        'VALUES (:mod, "Not available", "Not available", "Not available")', {'mod': mod})
+                        'VALUES (:mod, "Not available", "Not available", "Not available")',
+                        {'mod': mod})
 
         # Update 'Total' table with status of mod availability in SpaceDock, Curse and CKAN repositories
         for mod in total_mods:
             if mod in spacedock.keys():
-                cur.execute('UPDATE Total SET Spacedock =:status WHERE Mod =:mod', {'mod': mod, 'status': 'OK (' + spacedock[mod][0] + ')'})
+                cur.execute('UPDATE Total '
+                            'SET Spacedock =:status, Source =:source '
+                            'WHERE Mod =:mod',
+                            {'mod': mod, 'status': 'OK (' + spacedock[mod][0] + ')', 'source':spacedock[mod][2]})
             if mod in curse.keys():
                 cur.execute('UPDATE Total SET Curse =:status WHERE Mod =:mod', {'mod': mod, 'status': 'OK (' + curse[mod][0] + ')'})
-            #if mod in ckan_list:
-            #    cur.execute('UPDATE Total SET CKAN = "OK" WHERE Mod =:mod', {'mod': mod})
+
 
 # def drop_data(table, db_file):
 #     con = sqlite3.connect(db_file, timeout=1)
@@ -94,9 +97,9 @@ def update_db(table, mods, db_file):
                 print("Updating SpaceDock database...")
                 cur.execute('DELETE FROM SpaceDock')
                 for mod_name in sorted(mods.keys()):
-                    cur.execute('INSERT INTO SpaceDock (Mod, KSP_version, Last_updated) '
-                                'VALUES (:mod, :version, :last_updated)',
-                                {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1]})
+                    cur.execute('INSERT INTO SpaceDock (Mod, KSP_version, Last_updated, Source) '
+                                'VALUES (:mod, :version, :last_updated, :source)',
+                                {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1], 'source': mods[mod_name][2]})
 
             if table == 'CKAN':
                 print("Updating CKAN database...")

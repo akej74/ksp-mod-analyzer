@@ -112,9 +112,12 @@ class SpacedockThread(QtCore.QThread):
                     mod_name = helpers.clean_item(mod['name'])
                     ksp_version = mod['versions'][0]['game_version']
                     last_updated = 'N/A'  # Not available from SpaceDock API
+                    source = mod['source_code']
+                    #if not source:
+                    #    source = 'N/A'
 
                     # Update dict
-                    mods[mod_name] = [ksp_version, last_updated]
+                    mods[mod_name] = [ksp_version, last_updated, source]
 
             # Update the database
             helpers.update_db('SpaceDock', mods, self.db_file)

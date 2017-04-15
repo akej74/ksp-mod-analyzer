@@ -18,7 +18,7 @@ from ui.mainwindow import Ui_MainWindow
 PROGRAM_VERSION = "1.1.0"
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
-DISK_CACHE = True
+DISK_CACHE = False
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
     """Creates the UI, based on PyQt5.
@@ -186,9 +186,9 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Define SQL queries
         if query_type == 'All mods':
-            sql = 'SELECT Mod, Spacedock, Curse, CKAN FROM Total'
+            sql = 'SELECT Mod, Spacedock, Curse, CKAN, Source FROM Total'
         elif query_type == 'All mods on SpaceDock':
-            sql = 'SELECT Mod, SpaceDock FROM Total WHERE SpaceDock LIKE "OK%"'
+            sql = 'SELECT Mod, SpaceDock, Source FROM Total WHERE SpaceDock LIKE "OK%"'
         elif query_type == 'All mods on Curse':
             sql = 'SELECT Mod, Curse FROM Total WHERE Curse LIKE "OK%"'
         elif query_type == 'Mods only on SpaceDock':
@@ -216,6 +216,16 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Interactive)
         self.ui.tableView.horizontalHeader().resizeSection(0, 400)
+
+        self.ui.tableView.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Interactive)
+        self.ui.tableView.horizontalHeader().resizeSection(1, 110)
+
+        self.ui.tableView.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.Interactive)
+        self.ui.tableView.horizontalHeader().resizeSection(2, 130)
+
+        self.ui.tableView.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Interactive)
+        self.ui.tableView.horizontalHeader().resizeSection(3, 120)
+
 
         # Fetch all available records
         while DBModel.canFetchMore():
