@@ -207,6 +207,9 @@ def get_curse_mods(soup):
             if last_updated_tag:
                 last_updated = last_updated_tag[0][8:]
 
+        # Channge "prerelase" to "pre" to save space
+        ksp_version = re.sub(r'prerelease', 'pre', ksp_version)
+
         # Update values after all LI tags have been analyzed
         mods[mod_name] = [ksp_version, last_updated]
 
