@@ -226,6 +226,13 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.ui.tableView.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Interactive)
         self.ui.tableView.horizontalHeader().resizeSection(3, 100)
 
+        if query_type == 'All mods on SpaceDock':
+            self.ui.tableView.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.Interactive)
+            self.ui.tableView.horizontalHeader().resizeSection(2, 300)
+
+            self.ui.tableView.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Interactive)
+            self.ui.tableView.horizontalHeader().resizeSection(3, 300)
+
 
         # Fetch all available records
         while DBModel.canFetchMore():
