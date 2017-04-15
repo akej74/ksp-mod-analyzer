@@ -186,9 +186,9 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Define SQL queries
         if query_type == 'All mods':
-            sql = 'SELECT Mod, Spacedock, Curse, CKAN, Source FROM Total'
+            sql = 'SELECT Mod, Spacedock, Curse, CKAN, Source, Forum FROM Total'
         elif query_type == 'All mods on SpaceDock':
-            sql = 'SELECT Mod, SpaceDock, Source FROM Total WHERE SpaceDock LIKE "OK%"'
+            sql = 'SELECT Mod, SpaceDock, Source, Forum FROM Total WHERE SpaceDock LIKE "OK%"'
         elif query_type == 'All mods on Curse':
             sql = 'SELECT Mod, Curse FROM Total WHERE Curse LIKE "OK%"'
         elif query_type == 'Mods only on SpaceDock':
@@ -215,16 +215,16 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         #self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
 
         self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(0, 400)
+        self.ui.tableView.horizontalHeader().resizeSection(0, 350)
 
         self.ui.tableView.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(1, 110)
+        self.ui.tableView.horizontalHeader().resizeSection(1, 100)
 
         self.ui.tableView.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(2, 130)
+        self.ui.tableView.horizontalHeader().resizeSection(2, 100)
 
         self.ui.tableView.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(3, 120)
+        self.ui.tableView.horizontalHeader().resizeSection(3, 100)
 
 
         # Fetch all available records

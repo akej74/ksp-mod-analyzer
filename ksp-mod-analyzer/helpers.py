@@ -27,10 +27,10 @@ def init_database(db_file):
         print()
         with con as cur:
             # Create tables
-            cur.execute('CREATE TABLE IF NOT EXISTS SpaceDock (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS Curse (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS CKAN (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS Total (Id INTEGER PRIMARY KEY, Mod TEXT, SpaceDock TEXT, Curse TEXT, CKAN TEXT, Source TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS SpaceDock (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT, Forum TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS Curse (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT, Forum TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS CKAN (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Last_updated TEXT, Source TEXT, Forum TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS Total (Id INTEGER PRIMARY KEY, Mod TEXT, SpaceDock TEXT, Curse TEXT, CKAN TEXT, Source TEXT, Forum TEXT)')
 
 def update_total_mods(db_file):
     """Updates the 'Total' table with data from 'SpaceDock', 'Curse' and 'CKAN' tables."""
@@ -41,14 +41,14 @@ def update_total_mods(db_file):
         cur.execute('DELETE FROM Total')
 
         # Get a list of all SpaceDock mods
-        cur.execute('SELECT Mod, KSP_version, Last_updated, Source FROM SpaceDock')
+        cur.execute('SELECT Mod, KSP_version, Last_updated, Source, Forum FROM SpaceDock')
         #spacedock_list = [i[0] for i in cur.fetchall()]
-        spacedock = {i[0]: [i[1], i[2], i[3]] for i in cur.fetchall()}
+        spacedock = {i[0]: [i[1], i[2], i[3], i[4]] for i in cur.fetchall()}
 
         # Get a list of all Curse mods
-        cur.execute('SELECT Mod, KSP_version, Last_updated, Source FROM Curse')
+        cur.execute('SELECT Mod, KSP_version, Last_updated, Source, Forum FROM Curse')
         #curse_list = [i[0] for i in cur.fetchall()]
-        curse = {i[0]: [i[1], i[2]] for i in cur.fetchall()}
+        curse = {i[0]: [i[1], i[2], i[3], i[4]] for i in cur.fetchall()}
 
         # TODO: Add CKAN
 
@@ -66,9 +66,12 @@ def update_total_mods(db_file):
         for mod in total_mods:
             if mod in spacedock.keys():
                 cur.execute('UPDATE Total '
-                            'SET Spacedock =:status, Source =:source '
+                            'SET Spacedock =:status, Source =:source, Forum =:forum '
                             'WHERE Mod =:mod',
-                            {'mod': mod, 'status': 'OK (' + spacedock[mod][0] + ')', 'source':spacedock[mod][2]})
+                            {'mod': mod,
+                             'status': 'OK (' + spacedock[mod][0] + ')',
+                             'source': spacedock[mod][2],
+                             'forum': spacedock[mod][3]})
             if mod in curse.keys():
                 cur.execute('UPDATE Total SET Curse =:status WHERE Mod =:mod', {'mod': mod, 'status': 'OK (' + curse[mod][0] + ')'})
 
@@ -91,15 +94,21 @@ def update_db(table, mods, db_file):
                 for mod_name in sorted(mods.keys()):
                     cur.execute('INSERT INTO Curse (Mod, KSP_version, Last_updated) '
                                 'VALUES (:mod, :version, :last_updated)',
-                                {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1]})
+                                {'mod': mod_name,
+                                 'version': mods[mod_name][0],
+                                 'last_updated': mods[mod_name][1]})
 
             if table == 'SpaceDock':
                 print("Updating SpaceDock database...")
                 cur.execute('DELETE FROM SpaceDock')
                 for mod_name in sorted(mods.keys()):
-                    cur.execute('INSERT INTO SpaceDock (Mod, KSP_version, Last_updated, Source) '
-                                'VALUES (:mod, :version, :last_updated, :source)',
-                                {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1], 'source': mods[mod_name][2]})
+                    cur.execute('INSERT INTO SpaceDock (Mod, KSP_version, Last_updated, Source, Forum) '
+                                'VALUES (:mod, :version, :last_updated, :source, :forum)',
+                                {'mod': mod_name,
+                                 'version': mods[mod_name][0],
+                                 'last_updated': mods[mod_name][1],
+                                 'source': mods[mod_name][2],
+                                 'forum': mods[mod_name][3]})
 
             if table == 'CKAN':
                 print("Updating CKAN database...")
@@ -107,7 +116,9 @@ def update_db(table, mods, db_file):
                 for mod_name in sorted(mods.keys()):
                     cur.execute('INSERT INTO CKAN (Mod, KSP_version, Last_updated) '
                                 'VALUES (:mod, :version, :last_updated)',
-                                {'mod': mod_name, 'version': mods[mod_name][0], 'last_updated': mods[mod_name][1]})
+                                {'mod': mod_name,
+                                 'version': mods[mod_name][0],
+                                 'last_updated': mods[mod_name][1]})
 
 
 def get_records(table, db_file):
