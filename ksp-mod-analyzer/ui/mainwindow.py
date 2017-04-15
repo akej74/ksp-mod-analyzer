@@ -132,7 +132,7 @@ class Ui_MainWindow(object):
         self.tableView.setSizePolicy(sizePolicy)
         self.tableView.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.tableView.setAlternatingRowColors(True)
-        self.tableView.setSortingEnabled(False)
+        self.tableView.setSortingEnabled(True)
         self.tableView.setObjectName("tableView")
         self.tableView.horizontalHeader().setDefaultSectionSize(160)
         self.tableView.horizontalHeader().setMinimumSectionSize(50)
