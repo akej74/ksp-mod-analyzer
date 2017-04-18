@@ -111,7 +111,7 @@ QHeaderView::section
        <item row="2" column="0">
         <widget class="QPushButton" name="pushButtonCKAN">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="text">
           <string>Update CKAN</string>
@@ -164,6 +164,11 @@ QHeaderView::section
            <item>
             <property name="text">
              <string>All mods on Curse</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>All mods on CKAN</string>
             </property>
            </item>
            <item>
