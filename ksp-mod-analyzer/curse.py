@@ -42,13 +42,13 @@ class CurseThread(QtCore.QThread):
     def stop(self):
         """Stops the running thread gracefully."""
 
-        print("Stopping Curse thread...")
+        print('Stopping Curse thread...')
         self.keep_running = False
 
         # Wait for the thread to stop
         self.wait()
-        self.cancelled_signal.emit("curse")
-        print("Curse thread stopped")
+        self.cancelled_signal.emit('curse')
+        print('Curse thread stopped')
 
     def run(self):
         """Main thread processing loop."""
@@ -56,7 +56,7 @@ class CurseThread(QtCore.QThread):
         self.keep_running = True
 
         try:
-            print("Starting Curse thread...")
+            print('Starting Curse thread...')
             # Get data from Curse and update database
             self.update_curse()
 
@@ -65,7 +65,7 @@ class CurseThread(QtCore.QThread):
 
             # Only emit finished signal if job was not cancelled (i.e. 'keep_running' is still True)
             if self.keep_running:
-                self.finished_signal.emit("curse")
+                self.finished_signal.emit('curse')
 
         # Exception handling:
         # Emits a signal if an exception occurs in the running thread
@@ -74,7 +74,7 @@ class CurseThread(QtCore.QThread):
         except Exception as e:
             # Stop the thread
             self.stop()
-            print("Curse thread stopped at exception")
+            print('Curse thread stopped at exception')
 
             # Get info about the exception
             (type, value, traceback) = sys.exc_info()
@@ -91,7 +91,7 @@ class CurseThread(QtCore.QThread):
         # Check if cached data on disk should be used
         if self.use_cache:
             # Read mod list from disk
-            mods = helpers.read_from_disk("curse.data")
+            mods = helpers.read_from_disk('data/curse.data')
 
             # Update database
             helpers.update_db('Curse', mods, self.db_file)
@@ -120,9 +120,9 @@ class CurseThread(QtCore.QThread):
 
             # Verify parsing of number of pages on Curse
             if pages:
-                print("Total sub-pages on Curse", pages)
+                print('Total sub-pages on Curse', pages)
             else:
-                raise Exception("Error parsing Curse, no pages found.")
+                raise Exception('Error parsing Curse, no pages found.')
 
             # Define the URL for the next page (starting from page 2) and get the remaining mods
             for page in range(2, int(pages) + 1):
@@ -145,12 +145,8 @@ class CurseThread(QtCore.QThread):
                     # Update dict with mods from the current page
                     mods.update(mods_new_page)
 
-            # Clean the list
-            #print("Clean Curse mods...")
-            #clean_mod_list = helpers.clean_list(mod_list)
-
             # Write data to file
-            helpers.write_to_disk("curse.data", mods)
+            helpers.write_to_disk('data/curse.data', mods)
 
             # Update database
             helpers.update_db('Curse', mods, self.db_file)
@@ -165,7 +161,7 @@ class CurseThread(QtCore.QThread):
             raise
 
         # Create a BeautifulSoup object from the HTML page
-        soup = BeautifulSoup(response.content, "html.parser")
+        soup = BeautifulSoup(response.content, 'html.parser')
         return soup
 
 
@@ -203,6 +199,7 @@ def get_curse_mods(soup):
             ksp_version_tag = litag.find_all(text=re.compile(r'Supports'))
             if ksp_version_tag:
                 ksp_version = ksp_version_tag[0][10:]
+
             last_updated_tag = litag.find_all(text=re.compile(r'Updated'))
             if last_updated_tag:
                 last_updated = last_updated_tag[0][8:]
