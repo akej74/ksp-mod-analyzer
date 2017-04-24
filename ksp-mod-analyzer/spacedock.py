@@ -42,13 +42,13 @@ class SpacedockThread(QtCore.QThread):
     def stop(self):
         """Stops the running thread gracefully."""
 
-        print("Stopping SpaceDock thread...")
+        print('Stopping SpaceDock thread...')
         self.keep_running = False
 
         # Wait for the thread to stop
         self.wait()
-        self.cancelled_signal.emit("spacedock")
-        print("SpaceDock thread stopped")
+        self.cancelled_signal.emit('spacedock')
+        print('SpaceDock thread stopped')
 
     def run(self):
         """Main thread processing loop."""
@@ -56,7 +56,7 @@ class SpacedockThread(QtCore.QThread):
         self.keep_running = True
 
         try:
-            print("Starting SpaceDock thread...")
+            print('Starting SpaceDock thread...')
             # Get data from SpaceDock and update database
             self.update_spacedock()
 
@@ -65,7 +65,7 @@ class SpacedockThread(QtCore.QThread):
 
             # Only emit finished signal if job was not cancelled (i.e. 'keep_running' is still True)
             if self.keep_running:
-                self.finished_signal.emit("spacedock")
+                self.finished_signal.emit('spacedock')
 
         # Exception handling:
         # Emits a signal if an exception occurs in the running thread
@@ -74,8 +74,7 @@ class SpacedockThread(QtCore.QThread):
         except Exception as e:
             # Stop the thread
             self.stop()
-            print("SpaceDock thread stopped at exception")
-            print()
+            print('SpaceDock thread stopped at exception')
 
             # Get info about the exception
             (type, value, traceback) = sys.exc_info()
@@ -94,10 +93,10 @@ class SpacedockThread(QtCore.QThread):
 
         # Check if cached data on disk should be used (for testing purposes)
         if self.use_cache:
-            spacedock_data = helpers.read_from_disk("spacedock.data")
+            spacedock_data = helpers.read_from_disk('data/spacedock.data')
         else:
             spacedock_data = self.parse_spacedock()
-            helpers.write_to_disk("spacedock.data", spacedock_data)
+            helpers.write_to_disk('data/spacedock.data', spacedock_data)
 
         if self.keep_running:
             # Empty list to hold all mods
