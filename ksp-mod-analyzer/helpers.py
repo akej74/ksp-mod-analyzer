@@ -289,6 +289,7 @@ def write_to_disk(filename, data):
 
     with open(filename, "wb") as f:
         print("Writing file", filename)
+        print()
         pickle.dump(data, f)
 
 def read_from_disk(filename):
@@ -296,5 +297,6 @@ def read_from_disk(filename):
 
     with open(filename, "rb") as f:
         print("Reading from file", filename)
+        print()
         data = pickle.load(f)
     return data
