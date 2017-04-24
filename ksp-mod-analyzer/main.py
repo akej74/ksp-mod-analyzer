@@ -9,13 +9,15 @@ import sys
 
 from PyQt5 import QtCore, QtWidgets, QtSql
 
+import ckan
 import curse
 import helpers
 import settings
 import spacedock
 from ui.mainwindow import Ui_MainWindow
 
-PROGRAM_VERSION = "1.1.0"
+PROGRAM_VERSION = '1.1.0'
+DATA_DIR = 'data'
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
 DISK_CACHE = True
@@ -43,8 +45,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # Set upp the UI
         self.ui.setupUi(self)
 
+        # Create data directory
+        os.makedirs(DATA_DIR, exist_ok=True)
+
         # SQLite database file
-        self.db_file = 'database.db'
+        self.db_file = 'data/database.db'
 
         # Define QSqlDatabase
         self.qt_db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
@@ -60,9 +65,10 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # Initialize database
         helpers.init_database(self.db_file)
 
-        # QThreads for fetching data from SpaceDock and Curse
+        # QThreads for fetching data from SpaceDock, Curse and CKAN
         self.spacedock_thread = spacedock.SpacedockThread(db_file=self.db_file, use_cache=DISK_CACHE)
         self.curse_thread = curse.CurseThread(db_file=self.db_file, use_cache=DISK_CACHE)
+        self.ckan_thread = ckan.CKANThread(db_file=self.db_file, use_cache=DISK_CACHE)
 
         # Connect signals and slots and initialize UI values
         self.setup_ui_logic()
@@ -77,6 +83,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # Connect push button events
         self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
         self.ui.pushButtonCurse.clicked.connect(self.update_curse)
+        self.ui.pushButtonCKAN.clicked.connect(self.update_ckan)
 
         # Connect combo box event and update database model with current selected value in the combo box
         self.ui.comboBoxSelectData.currentIndexChanged.connect(
@@ -86,18 +93,22 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # This is needed as it's not possible to show a message box widget from the QThread directly
         self.spacedock_thread.exception_signal.connect(self.thread_exception_handling)
         self.curse_thread.exception_signal.connect(self.thread_exception_handling)
+        self.ckan_thread.exception_signal.connect(self.thread_exception_handling)
 
         # Connect finished signals
         self.spacedock_thread.finished_signal.connect(self.finished_processing)
         self.curse_thread.finished_signal.connect(self.finished_processing)
+        self.ckan_thread.finished_signal.connect(self.finished_processing)
 
         # Connect cancelled signals
         self.spacedock_thread.cancelled_signal.connect(self.cancelled_processing)
         self.curse_thread.cancelled_signal.connect(self.cancelled_processing)
+        self.ckan_thread.cancelled_signal.connect(self.cancelled_processing)
 
         # Connect progress bar signals
         self.spacedock_thread.notify_progress_signal.connect(lambda i: self.ui.progressBarSpacedock.setValue(i))
         self.curse_thread.notify_progress_signal.connect(lambda i: self.ui.progressBarCurse.setValue(i))
+        self.ckan_thread.notify_progress_signal.connect(lambda i: self.ui.progressBarCKAN.setValue(i))
 
         # Update data model for the QTableView
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
@@ -122,6 +133,16 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         self.curse_thread.start()
 
+    def update_ckan(self):
+        """Updates the UI and starts CKAN processing thread."""
+
+        # Change functionality of "Update CKAN" button to "Cancel"
+        self.ui.pushButtonCKAN.disconnect()
+        self.ui.pushButtonCKAN.clicked.connect(self.ckan_thread.stop)
+        self.ui.pushButtonCKAN.setText('Cancel')
+
+        self.ckan_thread.start()
+
     def finished_processing(self, sender):
         """Updates the UI and database model after threads have completed the run."""
 
@@ -138,6 +159,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.pushButtonCurse.disconnect()
             self.ui.pushButtonCurse.clicked.connect(self.update_curse)
             self.ui.pushButtonCurse.setText('Update Curse')
+
+        if sender == 'ckan':
+            self.ui.pushButtonCKAN.disconnect()
+            self.ui.pushButtonCKAN.clicked.connect(self.update_ckan)
+            self.ui.pushButtonCKAN.setText('Update CKAN')
 
         # Update 'Status' group box
         self.update_status()
@@ -159,7 +185,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.pushButtonCurse.clicked.connect(self.update_curse)
             self.ui.pushButtonCurse.setText('Update Curse')
 
-            #helpers.drop_data('Curse', self.db_file)
+        if sender == 'ckan':
+            self.ui.progressBarCKAN.setValue(0)
+            self.ui.pushButtonCKAN.disconnect()
+            self.ui.pushButtonCKAN.clicked.connect(self.update_ckan)
+            self.ui.pushButtonCKAN.setText('Update CKAN')
 
         # Update 'Status' group box
         self.update_status()
@@ -191,6 +221,8 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             sql = 'SELECT Mod, SpaceDock, Source, Forum FROM Total WHERE SpaceDock IS NOT NULL'
         elif query_type == 'All mods on Curse':
             sql = 'SELECT Mod, Curse FROM Total WHERE Curse IS NOT NULL'
+        elif query_type == 'All mods on CKAN':
+            sql = 'SELECT Mod, CKAN FROM Total WHERE CKAN IS NOT NULL'
         elif query_type == 'Mods only on SpaceDock':
             sql = 'SELECT Mod, SpaceDock FROM Total WHERE Spacedock IS NOT NULL AND Curse IS NULL'
         elif query_type == 'Mods only on Curse':
@@ -233,7 +265,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.tableView.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Interactive)
             self.ui.tableView.horizontalHeader().resizeSection(3, 300)
 
-
         # Fetch all available records
         while DBModel.canFetchMore():
             DBModel.fetchMore()
@@ -249,9 +280,9 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         """Updates the data in 'Status' group box."""
 
         # Check if SpaceDock data file exists and update UI accordingly
-        if os.path.isfile('spacedock.data'):
+        if os.path.isfile('data/spacedock.data'):
             spacedock_records = helpers.get_records('SpaceDock', self.db_file)
-            spacedock_last_date = helpers.get_file_modification_time('spacedock.data')
+            spacedock_last_date = helpers.get_file_modification_time('data/spacedock.data')
             self.ui.labelSpacedockMods.setText('<font color="Blue">' + str(spacedock_records))
             self.ui.labelLastUpdateSpacedock.setText('<font color="Blue">' + str(spacedock_last_date))
         else:
@@ -259,9 +290,9 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.labelLastUpdateSpacedock.setText('<font color="Red">---')
 
         # Check if Curse data file exists and update UI accordingly
-        if os.path.isfile('curse.data'):
+        if os.path.isfile('data/curse.data'):
             curse_records = helpers.get_records('Curse', self.db_file)
-            curse_last_date = helpers.get_file_modification_time('curse.data')
+            curse_last_date = helpers.get_file_modification_time('data/curse.data')
             self.ui.labelCurseMods.setText('<font color="Blue">' + str(curse_records))
             self.ui.labelLastUpdateCurse.setText('<font color="Blue">' + str(curse_last_date))
         else:
@@ -269,15 +300,14 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.labelLastUpdateCurse.setText('<font color="Red">---')
 
         # Check if CKAN data file exists and update UI accordingly
-        if os.path.isfile('ckan.data'):
-            curse_records = helpers.get_records('CKAN', self.db_file)
-            curse_last_date = helpers.get_file_modification_time('ckan.data')
-            self.ui.labelCKANMods.setText('<font color="Blue">' + str(curse_records))
-            self.ui.labelLastUpdateCKAN.setText('<font color="Blue">' + str(curse_last_date))
+        if os.path.isfile('data/master.tar.gz'):
+            ckan_records = helpers.get_records('CKAN', self.db_file)
+            ckan_last_date = helpers.get_file_modification_time('data/master.tar.gz')
+            self.ui.labelCKANMods.setText('<font color="Blue">' + str(ckan_records))
+            self.ui.labelLastUpdateCKAN.setText('<font color="Blue">' + str(ckan_last_date))
         else:
             self.ui.labelCKANMods.setText('<font color="Red">---')
             self.ui.labelLastUpdateCKAN.setText('<font color="Red">---')
-
 
 
     def closeEvent(self, event):
@@ -292,7 +322,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         if self.curse_thread.isRunning():
             print("Stopping Curse thread...")
-            self.spacedock_thread.stop()
+            self.curse_thread.stop()
+
+        if self.ckan_thread.isRunning():
+            print("Stopping CKAN thread...")
+            self.ckan_thread.stop()
 
         # Save UI settings
         settings.save_settings(self.config, self.ui)
