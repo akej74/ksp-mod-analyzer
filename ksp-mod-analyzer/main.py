@@ -20,7 +20,7 @@ PROGRAM_VERSION = '1.1.0'
 DATA_DIR = 'data'
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
-DISK_CACHE = True
+DISK_CACHE = False
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
     """Creates the UI, based on PyQt5.
@@ -177,8 +177,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
             self.ui.pushButtonSpacedock.setText('Update SpaceDock')
 
-            #helpers.drop_data('SpaceDock', self.db_file)
-
         if sender == 'curse':
             self.ui.progressBarCurse.setValue(0)
             self.ui.pushButtonCurse.disconnect()
@@ -212,7 +210,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             raise Exception('Could not open QT database.')
 
         # Use the simple read-only model provided by QT
-        DBModel = QtSql.QSqlQueryModel()
+        db_model = QtSql.QSqlQueryModel()
 
         # Define SQL queries
         if query_type == 'All mods':
@@ -232,10 +230,10 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             raise Exception('Invalid query type: "' + query_type + '" for QTableView')
 
         # Update the model with SQL query
-        DBModel.setQuery(sql, self.qt_db)
+        db_model.setQuery(sql, self.qt_db)
 
         # Configure the QTableView to use the model
-        self.ui.tableView.setModel(DBModel)
+        self.ui.tableView.setModel(db_model)
 
         # Set headers to be left aligned
         #self.ui.tableView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
@@ -266,11 +264,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.tableView.horizontalHeader().resizeSection(3, 300)
 
         # Fetch all available records
-        while DBModel.canFetchMore():
-            DBModel.fetchMore()
+        while db_model.canFetchMore():
+            db_model.fetchMore()
 
         # Update number of mods displayed
-        rows = DBModel.rowCount()
+        rows = db_model.rowCount()
         self.ui.labelNumberOfRecords.setText('<font color="Blue">' + str(rows))
 
         # Close database
