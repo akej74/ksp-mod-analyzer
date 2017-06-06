@@ -99,8 +99,6 @@ class SpacedockThread(QtCore.QThread):
             helpers.write_to_disk('data/spacedock.data', spacedock_data)
 
         if self.keep_running:
-            # Empty list to hold all mods
-            #mod_list = []
             # Empty dict to hold all mod data
             mods = {}
 
@@ -110,12 +108,11 @@ class SpacedockThread(QtCore.QThread):
                 for mod in page['result']:
                     mod_name = helpers.clean_item(mod['name'])
                     ksp_version = mod['versions'][0]['game_version']
-                    last_updated = 'N/A'  # Not available from SpaceDock API
                     source = mod['source_code']
                     forum = mod['website']
 
                     # Update dict
-                    mods[mod_name] = [ksp_version, last_updated, source, forum]
+                    mods[mod_name] = [ksp_version, source, forum]
 
             # Update the database
             helpers.update_db('SpaceDock', mods, self.db_file)
