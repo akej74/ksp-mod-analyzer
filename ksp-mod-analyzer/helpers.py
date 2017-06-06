@@ -15,9 +15,57 @@ import sqlite3
 import sys
 import traceback
 from datetime import datetime
+from natsort import natsorted
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
+def get_highest_version(mod_versions):
+    """Get the highest mod version in the mod_versions list."""
+
+    # Epoch number
+    re_epoch = re.compile(r'(^\d):')
+
+    # Everything after epoch
+    re_rest = re.compile(r'(^\d:)?(.*)')
+
+    clean_mod_versions = []
+    epochs = []
+
+    # Get all epoch numbers if available
+    for mod_version in mod_versions:
+        m1 = re.match(re_epoch, mod_version)
+        epoch = m1.group(1) if m1 else ''
+        if epoch:
+            epochs.append(epoch)
+
+    # Get the highest epoch number
+    if epochs:
+        highest_epoch = sorted(epochs)[-1]
+    else:
+        highest_epoch = 0
+
+    # Find all mod versions, using only the highest epoch number
+    for mod_version in mod_versions:
+        m1 = re.match(re_epoch, mod_version)
+        m2 = re.match(re_rest, mod_version)
+
+        epoch = m1.group(1) if m1 else ''
+        rest = m2.group(2) if m2 else ''
+
+        # Only append mod versions with highest epoch
+        if epoch == highest_epoch:
+            clean_mod_versions.append(rest)
+
+        # If no epochs, just add the mod version
+        if not epochs:
+            clean_mod_versions.append(rest)
+
+    highest_mod_version = natsorted(clean_mod_versions)[-1]
+
+    if epochs:
+        return highest_epoch + ':' + highest_mod_version
+    else:
+        return highest_mod_version
 
 def init_database(db_file):
     """Initializes the SQLite database and creates tables if they don't exist."""
@@ -27,10 +75,17 @@ def init_database(db_file):
         print()
         with con as cur:
             # Create tables
-            cur.execute('CREATE TABLE IF NOT EXISTS SpaceDock (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS Curse (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS CKAN (Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT)')
-            cur.execute('CREATE TABLE IF NOT EXISTS Total (Id INTEGER PRIMARY KEY, Mod TEXT, SpaceDock TEXT, Curse TEXT, CKAN TEXT, Source TEXT, Forum TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS SpaceDock '
+                        '(Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT)')
+
+            cur.execute('CREATE TABLE IF NOT EXISTS Curse '
+                        '(Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT)')
+
+            cur.execute('CREATE TABLE IF NOT EXISTS CKAN '
+                        '(Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT, Kerbalstuff TEXT, Spacedock TEXT)')
+
+            cur.execute('CREATE TABLE IF NOT EXISTS Total '
+                        '(Id INTEGER PRIMARY KEY, Mod TEXT, SpaceDock TEXT, Curse TEXT, CKAN TEXT, Source TEXT, Forum TEXT)')
 
 def update_total_mods(db_file):
     """Updates the 'Total' table with data from 'SpaceDock', 'Curse' and 'CKAN' tables."""
@@ -46,7 +101,7 @@ def update_total_mods(db_file):
         spacedock = {i[0]: [i[1], i[2], i[3]] for i in cur.fetchall()}
 
         # Get a list of all Curse mods
-        cur.execute('SELECT Mod, KSP_version, Last_updated, Source, Forum FROM Curse')
+        cur.execute('SELECT Mod, KSP_version, Source, Forum FROM Curse')
         #curse_list = [i[0] for i in cur.fetchall()]
         curse = {i[0]: [i[1], i[2], i[3]] for i in cur.fetchall()}
 
@@ -79,17 +134,10 @@ def update_total_mods(db_file):
                             {'mod': mod,
                              'status': curse[mod][0]})
 
-
-# def drop_data(table, db_file):
-#     con = sqlite3.connect(db_file, timeout=1)
-#     with con:
-#         cur = con.cursor()
-#         sql = 'DELETE FROM ' + table
-#         cur.execute(sql)
-
 def update_db(table, mods, db_file):
     """Updates the database with mod data for SpaceDock, Curse or CKAN."""
 
+    # TODO: Sort lowercase
     with contextlib.closing(sqlite3.connect(db_file, timeout=1)) as con:
          with con as cur:
             if table == 'Curse':
@@ -97,7 +145,7 @@ def update_db(table, mods, db_file):
                 cur.execute('DELETE FROM Curse')
                 for mod_name in sorted(mods.keys()):
                     cur.execute('INSERT INTO Curse (Mod, KSP_version) '
-                                'VALUES (:mod, :version, :last_updated)',
+                                'VALUES (:mod, :version)',
                                 {'mod': mod_name,
                                  'version': mods[mod_name][0]})
 
@@ -113,14 +161,16 @@ def update_db(table, mods, db_file):
                                  'forum': mods[mod_name][2]})
 
             if table == 'CKAN':
+                # raw_mods[identifier][mod_version] = [ksp_version, mod_name, source, forum, kerbalstuff, spacedock]
                 print("Updating CKAN database...")
                 cur.execute('DELETE FROM CKAN')
-                for mod_name in sorted(mods.keys()):
-                    cur.execute('INSERT INTO CKAN (Mod, KSP_version) '
-                                'VALUES (:mod, :version)',
-                                {'mod': mod_name,
-                                 'version': mods[mod_name][0]})
 
+
+                # for mod_name in sorted(mods.keys()):
+                #     cur.execute('INSERT INTO CKAN (Mod, KSP_version) '
+                #                 'VALUES (:mod, :version)',
+                #                 {'mod': mod_name,
+                #                  'version': mods[mod_name][0]})
 
 def get_records(table, db_file):
     """Gets the number of rows in a table."""
