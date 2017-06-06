@@ -125,7 +125,7 @@ class Ui_MainWindow(object):
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem2)
         self.gridLayout_4.addLayout(self.horizontalLayout, 0, 0, 1, 1)
-        self.tableView = QtWidgets.QTableView(self.groupBoxData)
+        self.tableView = CustomTableView(self.groupBoxData)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -273,4 +273,5 @@ class Ui_MainWindow(object):
         self.label_7.setText(_translate("MainWindow", "Last updated"))
         self.labelLastUpdateCKAN.setText(_translate("MainWindow", "<N/A>"))
 
+from mvc import CustomTableView
 from . import resources_rc

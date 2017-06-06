@@ -241,7 +241,7 @@ QHeaderView::section
         </layout>
        </item>
        <item row="1" column="0">
-        <widget class="QTableView" name="tableView">
+        <widget class="CustomTableView" name="tableView">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -479,6 +479,13 @@ QHeaderView::section
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CustomTableView</class>
+   <extends>QTableView</extends>
+   <header>mvc.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
