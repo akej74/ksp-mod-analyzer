@@ -8,6 +8,7 @@ import os
 import sys
 
 from PyQt5 import QtCore, QtWidgets, QtSql
+import webbrowser
 
 import ckan
 import curse
@@ -15,6 +16,7 @@ import helpers
 import settings
 import spacedock
 from ui.mainwindow import Ui_MainWindow
+import mvc
 
 PROGRAM_VERSION = '1.1.0'
 DATA_DIR = 'data'
@@ -73,12 +75,18 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # Connect signals and slots and initialize UI values
         self.setup_ui_logic()
 
+        # Define the custom Model-View-Controller for the table view
+        self.setup_mvc()
+
         # Update 'Status' group box
         self.update_status()
 
 
     def setup_ui_logic(self):
         """Defines QT signal and slot connections and initializes UI values."""
+
+        # Connect link activated event
+        self.ui.tableView.link_activated.connect(self.open_browser)
 
         # Connect push button events
         self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
@@ -112,6 +120,14 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Update data model for the QTableView
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
+
+    def setup_mvc(self):
+        delegate = mvc.CustomDelegate()
+        self.ui.tableView.setItemDelegate(delegate)
+
+    def open_browser(self, url):
+        print('open browser ' + url)
+        webbrowser.open(url)
 
     def update_spacedock(self):
         """Updates the UI and starts SpaceDock processing thread."""
@@ -210,7 +226,8 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             raise Exception('Could not open QT database.')
 
         # Use the simple read-only model provided by QT
-        db_model = QtSql.QSqlQueryModel()
+        #db_model = QtSql.QSqlQueryModel()
+        model = mvc.CustomModel()
 
         # Define SQL queries
         if query_type == 'All mods':
@@ -230,10 +247,10 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             raise Exception('Invalid query type: "' + query_type + '" for QTableView')
 
         # Update the model with SQL query
-        db_model.setQuery(sql, self.qt_db)
+        model.setQuery(sql, self.qt_db)
 
         # Configure the QTableView to use the model
-        self.ui.tableView.setModel(db_model)
+        self.ui.tableView.setModel(model)
 
         # Set headers to be left aligned
         #self.ui.tableView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
@@ -264,11 +281,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.tableView.horizontalHeader().resizeSection(3, 300)
 
         # Fetch all available records
-        while db_model.canFetchMore():
-            db_model.fetchMore()
+        while model.canFetchMore():
+            model.fetchMore()
 
         # Update number of mods displayed
-        rows = db_model.rowCount()
+        rows = model.rowCount()
         self.ui.labelNumberOfRecords.setText('<font color="Blue">' + str(rows))
 
         # Close database
