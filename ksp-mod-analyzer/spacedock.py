@@ -110,9 +110,11 @@ class SpacedockThread(QtCore.QThread):
                     ksp_version = mod['versions'][0]['game_version']
                     source = mod['source_code']
                     forum = mod['website']
+                    id = mod['id']
+                    url = '<a href="https://spacedock.info/mod/' + str(id) + '">' + str(ksp_version) + '</a>'
 
                     # Update dict
-                    mods[mod_name] = [ksp_version, source, forum]
+                    mods[mod_name] = [ksp_version, source, forum, id, url]
 
             # Update the database
             helpers.update_db('SpaceDock', mods, self.db_file)
