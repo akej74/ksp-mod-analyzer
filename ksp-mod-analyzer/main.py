@@ -22,7 +22,7 @@ PROGRAM_VERSION = '1.1.0'
 DATA_DIR = 'data'
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
-DISK_CACHE = False
+DISK_CACHE = True
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
     """Creates the UI, based on PyQt5.
@@ -65,12 +65,13 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.model = mvc.CustomModel()
 
         # Define proxy (needed for sorting in the custom QTableView)
-        self.proxy = QtCore.QSortFilterProxyModel()
-        self.proxy.setSortCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        self.proxy.setSourceModel(self.model)
+        #proxy = QtCore.QSortFilterProxyModel()
+        proxy = mvc.CustomProxy()
+        proxy.setSortCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        proxy.setSourceModel(self.model)
 
         # Configure model for table view
-        self.ui.tableView.setModel(self.proxy)
+        self.ui.tableView.setModel(proxy)
 
         # QSettings object for storing the UI configuration in the OS native repository (Registry for Windows, ini-file for Linux)
         # In Windows, parameters will be stored at HKEY_CURRENT_USER/SOFTWARE/KSP_Mod_Analyzer/App
