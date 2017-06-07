@@ -18,7 +18,9 @@
     <normaloff>:/icons/flying.png</normaloff>:/icons/flying.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">QGroupBox {
+   <string notr="true">
+
+QGroupBox {
         background-color:qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(235, 235, 235, 255), stop:1 rgba(255, 255, 255, 255));
         border: 1px solid gray;
         border-radius: 6px;
@@ -39,6 +41,10 @@ QHeaderView::section
 	font-weight: bold;
 	margin-bottom:4px;
 	margin-top:2px;
+}
+
+QStatusBar {
+border-top: 1px outset grey;
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -316,8 +322,8 @@ QHeaderView::section
      <widget class="QLabel" name="labelFlyingKerbal">
       <property name="maximumSize">
        <size>
-        <width>50</width>
-        <height>60</height>
+        <width>40</width>
+        <height>50</height>
        </size>
       </property>
       <property name="text">

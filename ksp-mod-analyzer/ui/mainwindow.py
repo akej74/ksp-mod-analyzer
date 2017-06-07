@@ -15,7 +15,9 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icons/flying.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
-        MainWindow.setStyleSheet("QGroupBox {\n"
+        MainWindow.setStyleSheet("\n"
+"\n"
+"QGroupBox {\n"
 "        background-color:qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(235, 235, 235, 255), stop:1 rgba(255, 255, 255, 255));\n"
 "        border: 1px solid gray;\n"
 "        border-radius: 6px;\n"
@@ -36,6 +38,10 @@ class Ui_MainWindow(object):
 "    font-weight: bold;\n"
 "    margin-bottom:4px;\n"
 "    margin-top:2px;\n"
+"}\n"
+"\n"
+"QStatusBar {\n"
+"border-top: 1px outset grey;\n"
 "}")
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
@@ -153,7 +159,7 @@ class Ui_MainWindow(object):
         self.labelKSPModAnalyzer.setObjectName("labelKSPModAnalyzer")
         self.gridLayout_3.addWidget(self.labelKSPModAnalyzer, 0, 0, 1, 1)
         self.labelFlyingKerbal = QtWidgets.QLabel(self.centralWidget)
-        self.labelFlyingKerbal.setMaximumSize(QtCore.QSize(50, 60))
+        self.labelFlyingKerbal.setMaximumSize(QtCore.QSize(40, 50))
         self.labelFlyingKerbal.setText("")
         self.labelFlyingKerbal.setPixmap(QtGui.QPixmap(":/icons/flying.png"))
         self.labelFlyingKerbal.setScaledContents(True)
