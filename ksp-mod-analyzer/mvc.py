@@ -1,9 +1,9 @@
 from PyQt5 import QtCore, QtWidgets, QtGui, QtSql
-import helpers
 
 class CustomTableView(QtWidgets.QTableView):
 
     link_activated = QtCore.pyqtSignal(str)
+    mouse_hover = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         self.parent = parent
@@ -25,8 +25,10 @@ class CustomTableView(QtWidgets.QTableView):
         if self._lastHoveredAnchor != anchor:
             self._lastHoveredAnchor = anchor
             if self._lastHoveredAnchor:
+                self.mouse_hover.emit(anchor)
                 QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
             else:
+                self.mouse_hover.emit('')
                 QtWidgets.QApplication.restoreOverrideCursor()
 
     def mouseReleaseEvent(self, event):
@@ -44,8 +46,6 @@ class CustomTableView(QtWidgets.QTableView):
                 itemRect = self.visualRect(index)
                 relativeClickPosition = pos - itemRect.topLeft()
                 html = self.model().data(index, QtCore.Qt.DisplayRole)
-                #html = '<a href="' + html + '">GP</a>'
-                #print(html)
                 return delegate.anchorAt(html, relativeClickPosition)
         return ''
 
@@ -102,6 +102,7 @@ class CustomModel(QtSql.QSqlQueryModel):
         #print('Row {}, Col {}, Value {}, Role {}'.format(index.row(), index.column(), value, role))
 
         if role == QtCore.Qt.DisplayRole:
+
             if 'github' in value:
                 return '<a href="' + value + '">GitHub</a>'
             elif 'forum' in value:
@@ -112,7 +113,7 @@ class CustomModel(QtSql.QSqlQueryModel):
                 return '<a href="' + value + '">Curseforge</a>'
             elif 'dropbox' in value:
                 return '<a href="' + value + '">Dropbox</a>'
-            elif 'drive' in value:
+            elif 'drive.google' in value:
                 return '<a href="' + value + '">Google Drive</a>'
             elif 'bitbucket' in value:
                 return '<a href="' + value + '">Bitbucket</a>'
