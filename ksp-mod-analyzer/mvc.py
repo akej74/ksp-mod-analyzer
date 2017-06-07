@@ -99,7 +99,6 @@ class CustomDelegate(QtWidgets.QStyledItemDelegate):
 class CustomModel(QtSql.QSqlQueryModel):
     def data(self, index, role=QtCore.Qt.DisplayRole):
         value = super().data(index, role)
-        #print('Row {}, Col {}, Value {}, Role {}'.format(index.row(), index.column(), value, role))
 
         if role == QtCore.Qt.DisplayRole:
 
@@ -121,8 +120,8 @@ class CustomModel(QtSql.QSqlQueryModel):
                 return '<a href="' + value + '">Patreon</a>'
             elif 'd-mp' in value:
                 return '<a href="' + value + '">D-MP</a>'
-            elif 'spacedock' in value:
-                return '<a href="' + value + '">SpaceDock</a>'
+            #elif 'spacedock' in value:
+            #    return '<a href="' + value + '">SpaceDock</a>'
             elif 'sirius' in value:
                 return '<a href="' + value + '">Sirius Inc</a>'
             elif 'sites.google' in value:
@@ -133,14 +132,13 @@ class CustomModel(QtSql.QSqlQueryModel):
                 return '<a href="' + value + '">Steam</a>'
             elif 'thekesla' in value:
                 return '<a href="' + value + '">The Kesla</a>'
-            elif 'http' in value:
-                return '<a href="' + value + '">Link</a>'
-            pass
-            #return 'This is row %s and col %s' % (index.row(), index.column())
-            #return QtCore.QVariant('This is row %s and col %s' % (index.row(), index.column()))
+            #elif 'http' in value:
+            #    return '<a href="' + value + '">Link</a>'
 
-        if role == QtCore.Qt.TextColorRole and index.column() == 1:
-            pass
-            #return QtCore.QVariant(QtGui.QColor(QtCore.Qt.blue))
-            #return QtGui.QColor(QtCore.Qt.blue)
         return value
+
+class CustomProxy(QtCore.QSortFilterProxyModel):
+    def lessThan(self, left, right):
+        lvalue = left.data().lower()
+        rvalue = right.data().lower()
+        return lvalue < rvalue
