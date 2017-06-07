@@ -111,41 +111,12 @@ class CKANThread(QtCore.QThread):
 
         raw_mods_filtered = filter_raw_mods(raw_mods)
 
-
         # Iterate over each mod id
         for id in sorted(raw_mods_filtered.keys(), key=str.lower):
             #print('##### ID "{}" #####'.format(id))
 
             mod_versions = sorted(raw_mods_filtered[id].keys())
             highest_mod_version = helpers.get_highest_version(mod_versions)
-            #print('Mod versions', mod_versions)
-            #print('Highest mod version', highest_mod_version)
-            #print()
-
-
-
-            # multiple_versions = False
-            # mod_versions = []
-            #
-            # # Iterate over all mod versions
-            # # If there are more than one mod version, store each in a list
-            # for mod_version in sorted(raw_mods_filtered[id].keys()):
-            #     multiple_versions = False
-            #     # If there are more than one mod version, save all to a temporary list
-            #     if len(raw_mods_filtered[id].keys()) > 1:
-            #         multiple_versions = True
-            #         mod_versions.append(mod_version)
-            #     else:
-            #         mod_versions.append(mod_version)
-            #
-            # if multiple_versions:
-            #     highest_mod_version = helpers.get_highest_version(mod_versions)
-            # else:
-            #     highest_mod_version = mod_version
-            # print('Mod versions', mod_versions)
-            # print('Highest mod version', highest_mod_version)
-            # print()
-
 
 def download_ckan(url):
     """Downloads the CKAN repo."""
