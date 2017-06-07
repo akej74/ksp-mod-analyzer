@@ -57,6 +57,21 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.qt_db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
         self.qt_db.setDatabaseName(self.db_file)
 
+        # Define custom delegate
+        self.delegate = mvc.CustomDelegate()
+        self.ui.tableView.setItemDelegate(self.delegate)
+
+        # Define custom database model
+        self.model = mvc.CustomModel()
+
+        # Define proxy (needed for sorting in the custom QTableView)
+        self.proxy = QtCore.QSortFilterProxyModel()
+        self.proxy.setSortCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.proxy.setSourceModel(self.model)
+
+        # Configure model for table view
+        self.ui.tableView.setModel(self.proxy)
+
         # QSettings object for storing the UI configuration in the OS native repository (Registry for Windows, ini-file for Linux)
         # In Windows, parameters will be stored at HKEY_CURRENT_USER/SOFTWARE/KSP_Mod_Analyzer/App
         self.config = QtCore.QSettings('KSP_Mod_Analyzer', 'App')
@@ -75,9 +90,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # Connect signals and slots and initialize UI values
         self.setup_ui_logic()
 
-        # Define the custom Model-View-Controller for the table view
-        self.setup_mvc()
-
         # Update 'Status' group box
         self.update_status()
 
@@ -85,8 +97,18 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
     def setup_ui_logic(self):
         """Defines QT signal and slot connections and initializes UI values."""
 
-        # Connect link activated event
-        self.ui.tableView.link_activated.connect(self.open_browser)
+        # Add status bar
+        self.statusBar = QtWidgets.QStatusBar()
+        self.setStatusBar(self.statusBar)
+
+        # Connect mouse hover over link event for updating status bar with URL
+        self.ui.tableView.mouse_hover.connect(self.statusBar.showMessage)
+
+        # Enable sorting indicator on colums
+        self.ui.tableView.horizontalHeader().setSortIndicatorShown(True)
+
+        # Connect link activated event to open the default web browser
+        self.ui.tableView.link_activated.connect(webbrowser.open)
 
         # Connect push button events
         self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
@@ -120,14 +142,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Update data model for the QTableView
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
-
-    def setup_mvc(self):
-        delegate = mvc.CustomDelegate()
-        self.ui.tableView.setItemDelegate(delegate)
-
-    def open_browser(self, url):
-        print('open browser ' + url)
-        webbrowser.open(url)
 
     def update_spacedock(self):
         """Updates the UI and starts SpaceDock processing thread."""
@@ -212,7 +226,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.ui.comboBoxSelectData.setCurrentIndex(0)
 
     def update_db_model(self, query_type):
-        """Defines a model view for the database, used by the QTableView.
+        """Updates the DB query used by the QTableView.
 
         Called in the following situations:
             - At application start
@@ -224,10 +238,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # TODO: Investigate if a context manager can be used for QtSQL databases
         if not self.qt_db.open():
             raise Exception('Could not open QT database.')
-
-        # Use the simple read-only model provided by QT
-        #db_model = QtSql.QSqlQueryModel()
-        model = mvc.CustomModel()
 
         # Define SQL queries
         if query_type == 'All mods':
@@ -246,46 +256,28 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.qt_db.close()
             raise Exception('Invalid query type: "' + query_type + '" for QTableView')
 
+        # Set default sort order (first column)
+        self.ui.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)
+
         # Update the model with SQL query
-        model.setQuery(sql, self.qt_db)
-
-        # Configure the QTableView to use the model
-        self.ui.tableView.setModel(model)
-
-        # Set headers to be left aligned
-        #self.ui.tableView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
+        self.model.setQuery(sql, self.qt_db)
 
         # Set all columns to stretch to available width
         self.ui.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
-        # Set first column to auto resize to contents
-        #self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-
+        # Set fixed width for first column
         self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(0, 350)
+        self.ui.tableView.horizontalHeader().resizeSection(0, 500)
 
-        self.ui.tableView.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(1, 100)
-
-        self.ui.tableView.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(2, 100)
-
-        self.ui.tableView.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(3, 100)
-
-        if query_type == 'All mods on SpaceDock':
-            self.ui.tableView.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.Interactive)
-            self.ui.tableView.horizontalHeader().resizeSection(2, 300)
-
-            self.ui.tableView.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Interactive)
-            self.ui.tableView.horizontalHeader().resizeSection(3, 300)
+        # Stretch last column to fill up all available space
+        self.ui.tableView.horizontalHeader().setStretchLastSection(False)
 
         # Fetch all available records
-        while model.canFetchMore():
-            model.fetchMore()
+        while self.model.canFetchMore():
+            self.model.fetchMore()
 
         # Update number of mods displayed
-        rows = model.rowCount()
+        rows = self.model.rowCount()
         self.ui.labelNumberOfRecords.setText('<font color="Blue">' + str(rows))
 
         # Close database
