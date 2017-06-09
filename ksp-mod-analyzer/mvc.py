@@ -139,8 +139,11 @@ class CustomModel(QtSql.QSqlQueryModel):
                 return '<a href="' + value + '">Steam</a>'
             elif 'thekesla' in value:
                 return '<a href="' + value + '">The Kesla</a>'
-            elif 'http' in value and not 'spacedock' and not 'mods.curse.com' in value:
-                return '<a href="' + value + '">Link</a>'
+            elif 'http' in value or 'https' in value:
+                if not '<a href' in value:
+                    return '<a href="' + value + '">Link</a>'
+            #    elif not 'curse' in value:
+            #        return '<a href="' + value + '">Link</a>'
 
         return value
 
