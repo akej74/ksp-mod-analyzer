@@ -1,6 +1,7 @@
+import re
+
 from PyQt5 import QtCore, QtWidgets, QtGui, QtSql
 
-import re
 
 class CustomTableView(QtWidgets.QTableView):
 
