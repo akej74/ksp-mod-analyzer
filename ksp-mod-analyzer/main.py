@@ -88,6 +88,13 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.curse_thread = curse.CurseThread(db_file=self.db_file, use_cache=DISK_CACHE)
         self.ckan_thread = ckan.CKANThread(db_file=self.db_file, use_cache=DISK_CACHE)
 
+        # Timers for cool down period to avoid sending to many requests to SpaceDock / Curse
+        self.spacedock_timer = QtCore.QTimer()
+        self.spacedock_cooldown = 5000
+        self.curse_timer = QtCore.QTimer()
+        self.curse_cooldown = 5000
+
+
         # Connect signals and slots and initialize UI values
         self.setup_ui_logic()
 
@@ -185,11 +192,16 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.pushButtonSpacedock.disconnect()
             self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
             self.ui.pushButtonSpacedock.setText('Update SpaceDock')
+            self.ui.pushButtonSpacedock.setEnabled(False)
+            self.spacedock_timer.singleShot(self.spacedock_cooldown, lambda: self.ui.pushButtonSpacedock.setEnabled(True))
+
 
         if sender == 'curse':
             self.ui.pushButtonCurse.disconnect()
             self.ui.pushButtonCurse.clicked.connect(self.update_curse)
             self.ui.pushButtonCurse.setText('Update Curse')
+            self.ui.pushButtonCurse.setEnabled(False)
+            self.curse_timer.singleShot(self.spacedock_cooldown, lambda : self.ui.pushButtonCurse.setEnabled(True))
 
         if sender == 'ckan':
             self.ui.pushButtonCKAN.disconnect()
