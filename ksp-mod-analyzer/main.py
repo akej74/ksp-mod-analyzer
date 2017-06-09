@@ -6,23 +6,22 @@
 
 import os
 import sys
-
-from PyQt5 import QtCore, QtWidgets, QtSql
 import webbrowser
 
 import ckan
 import curse
 import helpers
+import mvc
 import settings
 import spacedock
+from PyQt5 import QtCore, QtWidgets, QtSql
 from ui.mainwindow import Ui_MainWindow
-import mvc
 
 PROGRAM_VERSION = '1.1.0'
 DATA_DIR = 'data'
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
-DISK_CACHE = True
+DISK_CACHE = False
 
 class KspModAnalyzer(QtWidgets.QMainWindow):
     """Creates the UI, based on PyQt5.
