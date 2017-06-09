@@ -192,23 +192,23 @@ def get_curse_mods(soup):
     for ultag in soup.find_all('ul', 'group'):
         # Eight LI tags with data for each mod
         for litag in ultag.find_all('li'):
-            mod_name_tag = litag.find('h4')
-            if mod_name_tag:
-                mod_name = helpers.clean_item(mod_name_tag.get_text())
+            mod_tag = litag.find('h4')
+            if mod_tag:
+                mod_name = helpers.clean_item(mod_tag.get_text())
+                mod_url = 'https://mods.curse.com' + mod_tag.a.get('href')
 
             ksp_version_tag = litag.find_all(text=re.compile(r'Supports'))
             if ksp_version_tag:
                 ksp_version = ksp_version_tag[0][10:]
 
-            #last_updated_tag = litag.find_all(text=re.compile(r'Updated'))
-            #if last_updated_tag:
-            #    last_updated = last_updated_tag[0][8:]
-
         # Channge "prerelase" to "pre" to save space
         ksp_version = re.sub(r'prerelease', 'pre', ksp_version)
 
         # Update values after all LI tags have been analyzed
-        mods[mod_name] = [ksp_version]
+
+        mod_link = '<a href="' + mod_url + '">' + ksp_version + '</a>'
+        mods[mod_name] = [ksp_version, mod_link]
+
 
     return mods
 
