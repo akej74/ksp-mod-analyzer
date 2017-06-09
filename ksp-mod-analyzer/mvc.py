@@ -1,5 +1,7 @@
 from PyQt5 import QtCore, QtWidgets, QtGui, QtSql
 
+import re
+
 class CustomTableView(QtWidgets.QTableView):
 
     link_activated = QtCore.pyqtSignal(str)
@@ -120,8 +122,8 @@ class CustomModel(QtSql.QSqlQueryModel):
                 return '<a href="' + value + '">Patreon</a>'
             elif 'd-mp' in value:
                 return '<a href="' + value + '">D-MP</a>'
-            #elif 'spacedock' in value:
-            #    return '<a href="' + value + '">SpaceDock</a>'
+            elif 'http://spacedock' in value:
+                return '<a href="' + value + '">SpaceDock</a>'
             elif 'sirius' in value:
                 return '<a href="' + value + '">Sirius Inc</a>'
             elif 'sites.google' in value:
@@ -132,13 +134,23 @@ class CustomModel(QtSql.QSqlQueryModel):
                 return '<a href="' + value + '">Steam</a>'
             elif 'thekesla' in value:
                 return '<a href="' + value + '">The Kesla</a>'
-            #elif 'http' in value:
-            #    return '<a href="' + value + '">Link</a>'
+            elif 'http' in value and not 'spacedock' in value:
+                return '<a href="' + value + '">Link</a>'
 
         return value
 
 class CustomProxy(QtCore.QSortFilterProxyModel):
+    """Custom proxy to handle sorting of data."""
     def lessThan(self, left, right):
-        lvalue = left.data().lower()
-        rvalue = right.data().lower()
+
+        # If the data from the model in an HTML link, filter out the link text for sorting
+        # E.g. <a href="https://spacedock...>1.2.2</a>
+        m_left = re.search(r'<a href=".*">(.*)</a>', left.data())
+        m_right = re.search(r'<a href=".*">(.*)</a>', right.data())
+        if m_left and m_right:
+            lvalue = m_left.group(1)
+            rvalue = m_right.group(1)
+        else:
+            lvalue = left.data().lower()
+            rvalue = right.data().lower()
         return lvalue < rvalue
