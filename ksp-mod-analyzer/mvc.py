@@ -47,6 +47,10 @@ class CustomTableView(QtWidgets.QTableView):
             if delegate:
                 itemRect = self.visualRect(index)
                 relativeClickPosition = pos - itemRect.topLeft()
+
+                # Adjustment for center aligned text
+                relativeClickPosition.setY(relativeClickPosition.y()-8)
+
                 html = self.model().data(index, QtCore.Qt.DisplayRole)
                 return delegate.anchorAt(html, relativeClickPosition)
         return ''
@@ -134,7 +138,7 @@ class CustomModel(QtSql.QSqlQueryModel):
                 return '<a href="' + value + '">Steam</a>'
             elif 'thekesla' in value:
                 return '<a href="' + value + '">The Kesla</a>'
-            elif 'http' in value and not 'spacedock' in value:
+            elif 'http' in value and not 'spacedock' and not 'mods.curse.com' in value:
                 return '<a href="' + value + '">Link</a>'
 
         return value
