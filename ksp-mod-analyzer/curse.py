@@ -7,11 +7,10 @@
 import re
 import sys
 
+import helpers
 import requests
 from PyQt5 import QtCore
 from bs4 import BeautifulSoup
-
-import helpers
 
 
 class CurseThread(QtCore.QThread):
