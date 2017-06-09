@@ -15,19 +15,10 @@ import sqlite3
 import sys
 import traceback
 from datetime import datetime
-from natsort import natsorted
 
 from PyQt5 import QtCore, QtWidgets, QtGui
+from natsort import natsorted
 
-
-def dump(obj):
-    for attr in dir(obj):
-        if hasattr(obj, attr):
-            print('##### Object details #####')
-            print(obj)
-            print('--------------------------')
-            print("obj.%s = %s" % (attr, getattr(obj, attr)))
-            print()
 
 def get_highest_version(mod_versions):
     """Get the highest mod version in the mod_versions list."""
@@ -362,3 +353,14 @@ def read_from_disk(filename):
         print()
         data = pickle.load(f)
     return data
+
+def dump(obj):
+    """Print details about an object."""
+
+    for attr in dir(obj):
+        if hasattr(obj, attr):
+            print('##### Object details #####')
+            print(obj)
+            print('--------------------------')
+            print("obj.%s = %s" % (attr, getattr(obj, attr)))
+            print()
