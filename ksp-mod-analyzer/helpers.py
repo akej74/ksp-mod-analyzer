@@ -19,6 +19,16 @@ from natsort import natsorted
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
+
+def dump(obj):
+    for attr in dir(obj):
+        if hasattr(obj, attr):
+            print('##### Object details #####')
+            print(obj)
+            print('--------------------------')
+            print("obj.%s = %s" % (attr, getattr(obj, attr)))
+            print()
+
 def get_highest_version(mod_versions):
     """Get the highest mod version in the mod_versions list."""
 
@@ -79,7 +89,7 @@ def init_database(db_file):
                         '(Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT, Mod_Id TEXT, URL TEXT)')
 
             cur.execute('CREATE TABLE IF NOT EXISTS Curse '
-                        '(Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT)')
+                        '(Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT, URL TEXT)')
 
             cur.execute('CREATE TABLE IF NOT EXISTS CKAN '
                         '(Id INTEGER PRIMARY KEY, Mod TEXT, KSP_version TEXT, Source TEXT, Forum TEXT, Kerbalstuff TEXT, Spacedock TEXT)')
@@ -97,13 +107,11 @@ def update_total_mods(db_file):
 
         # Get a list of all SpaceDock mods
         cur.execute('SELECT Mod, KSP_version, Source, Forum, URL FROM SpaceDock')
-        #spacedock_list = [i[0] for i in cur.fetchall()]
         spacedock = {i[0]: [i[1], i[2], i[3], i[4]] for i in cur.fetchall()}
 
         # Get a list of all Curse mods
-        cur.execute('SELECT Mod, KSP_version, Source, Forum FROM Curse')
-        #curse_list = [i[0] for i in cur.fetchall()]
-        curse = {i[0]: [i[1], i[2], i[3]] for i in cur.fetchall()}
+        cur.execute('SELECT Mod, KSP_version, Source, Forum, URL FROM Curse')
+        curse = {i[0]: [i[1], i[2], i[3], i[4]] for i in cur.fetchall()}
 
         # TODO: Add CKAN
 
@@ -129,10 +137,10 @@ def update_total_mods(db_file):
                              'forum': spacedock[mod][2]})
             if mod in curse.keys():
                 cur.execute('UPDATE Total '
-                            'SET Curse =:status '
+                            'SET Curse =:version_link '
                             'WHERE Mod =:mod',
                             {'mod': mod,
-                             'status': curse[mod][0]})
+                             'version_link': curse[mod][3]})
 
 def update_db(table, mods, db_file):
     """Updates the database with mod data for SpaceDock, Curse or CKAN."""
@@ -144,10 +152,11 @@ def update_db(table, mods, db_file):
                 print("Updating Curse database...")
                 cur.execute('DELETE FROM Curse')
                 for mod_name in sorted(mods.keys()):
-                    cur.execute('INSERT INTO Curse (Mod, KSP_version) '
-                                'VALUES (:mod, :version)',
+                    cur.execute('INSERT INTO Curse (Mod, KSP_version, URL) '
+                                'VALUES (:mod, :version, :url)',
                                 {'mod': mod_name,
-                                 'version': mods[mod_name][0]})
+                                 'version': mods[mod_name][0],
+                                 'url':mods[mod_name][1]})
 
             if table == 'SpaceDock':
                 print("Updating SpaceDock database...")
