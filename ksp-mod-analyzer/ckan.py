@@ -5,16 +5,13 @@
 """
 
 import json
-import re
 import sys
 import tarfile
 from collections import defaultdict
 
+import helpers
 import requests
 from PyQt5 import QtCore
-from natsort import natsorted
-
-import helpers
 
 CKAN_REPO = 'https://github.com/KSP-CKAN/CKAN-meta/archive/master.tar.gz'
 
@@ -248,119 +245,8 @@ def filter_raw_mods(raw_mods):
     return raw_mods_filtered
 
 
-def analyze_mod(raw_mod):
-
-    ksp_versions = []
-    mod_versions = []
-
-    for mod_version in sorted(raw_mod.keys()):
-        mod_versions.append(mod_version)
-        ksp_versions.append(raw_mod[mod_version][0])
-        #print('Name "{}" Mod version "{}", KSP version "{}"'.format(raw_mod[mod_version][1], mod_version, raw_mod[mod_version][0]))
-
-    highest_ksp_version = sorted(ksp_versions)[-1]
-
-    mod_versions_filtered = []
-    print('KSP versions', ksp_versions)
-    print('Mod versions', mod_versions)
-    for mod_version in sorted(raw_mod.keys()):
-        if raw_mod[mod_version][0] == highest_ksp_version:
-            print('Mod version "{}" match for highest KSP version "{}"'.format(mod_version, raw_mod[mod_version][0]))
-
-    return ksp_versions, mod_versions
 
 
-def analyze_mod_version(name, ver):
-    # Epoch number
-    re_epoch = re.compile(r'(^\d):')
 
-    # Left non digit part after epoch
-    re_left_alpha = re.compile(r'(^\d:)?(\D*)?')
-
-    # Last alpha character
-    re_right_alpha = re.compile(r'\D+$')
-
-
-    m1 = re.match(re_epoch, ver)
-    m2 = re.match(re_left_alpha, ver)
-    m3 = re.search(re_right_alpha, ver)
-
-    epoch = m1.group(1) if m1 else ''
-    left_alpha = m2.group(2) if m2 else ''
-    right_alpha = m3.group() if m3 else ''
-
-    # String after epoch and non digit part
-    rest = re.sub(epoch + r':?' + left_alpha, '', ver)
-    sub_versions = re.split(r'\W', rest)
-
-    if right_alpha is not '':
-        print('### Name ###', name)
-        print('Version:', ver)
-        print('Epoch:', epoch)
-        print('Left alpha:', left_alpha)
-        #print(sub_versions)
-        print('Right alpha', right_alpha)
-        print()
-        # print('Rest:', rest)
-
-
-def print_raw_mod(raw_mods, id):
-    for identifier in sorted(raw_mods.keys()):
-        if identifier == id:
-            print('ID "{}"'.format(identifier))
-            mod_versions = []
-            ksp_versions = []
-            for mod_version in sorted(raw_mods[identifier].keys()):
-                print('Mod version "{}", KSP Version "{}"'.format(mod_version, raw_mods[identifier][mod_version][0]))
-                #mod_versions.append(mod_version)
-                #ksp_versions.append(raw_mods[identifier][mod_version][0])
-
-
-def slask(raw_mods):
-    mods = {}
-
-    # For each mod, check all mod versions and ksp versions and find the highest
-    # Verify that the highest mod version also has the highest ksp version
-    for identifier in sorted(raw_mods.keys()):
-        mod_versions = []
-        ksp_versions = []
-        for mod_version in sorted(raw_mods[identifier].keys()):
-            mod_versions.append(mod_version)
-            ksp_versions.append(raw_mods[identifier][mod_version][0])
-
-        if identifier == 'FerramAerospaceResearch':
-            print('Mod versions', mod_versions)
-            print('KSP versions', ksp_versions)
-
-            # highest_mod_version = sorted(mod_versions)[-1]  # Already sorted?
-            # highest_ksp_version = sorted(ksp_versions)[-1]
-
-            # filtered_mod_versions = []
-            # for mod_version in sorted(raw_mods[identifier].keys()):
-            #     if raw_mods[identifier][mod_version][0] == 'any' or raw_mods[identifier][mod_version][0] == highest_ksp_version:
-            #         filtered_mod_versions.append(mod_version)
-            #     else:
-            #         pass
-            #     if mod_version.startswith('3:'):
-            #         print(
-            #             'EPOCH! Mod "{}" with name "{}" has mod version "{}"'
-            #             .format(identifier, raw_mods[identifier][mod_version][1], mod_version))
-            #
-            #
-            # if raw_mods[identifier][highest_mod_version][0] == highest_ksp_version:
-            #     pass
-            # else:
-            #    print('ISSUE! Mod "{}" with name "{}" and highest mod version "{}" has ksp version "{}" when highest ksp version is "{}"'
-            #          .format(identifier, raw_mods[identifier][mod_version][1], highest_mod_version, raw_mods[identifier][mod_version][0], highest_ksp_version))
-
-            # if identifier == 'ShuttleLiftingBodyCormorantAeronology':
-            #    print(identifier)
-            #    print(unsorted_mod_versions)
-            #    print(sorted_mod_versions)
-
-            # highest_ksp_version = ''
-
-    print()
-    print('Number of mods', len(raw_mods.keys()))
 
 
