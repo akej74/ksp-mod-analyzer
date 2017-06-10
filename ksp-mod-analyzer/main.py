@@ -64,10 +64,13 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.model = mvc.CustomModel()
 
         # Define proxy (needed for sorting in the custom QTableView)
-        proxy = mvc.CustomProxy()
-        proxy.setSortCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        proxy.setSourceModel(self.model)
-        self.ui.tableView.setModel(proxy)
+        self.proxy = mvc.CustomProxy()
+        self.proxy.setSortCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.proxy.setSourceModel(self.model)
+        self.proxy.setFilterKeyColumn(0)
+        self.proxy.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.ui.tableView.setModel(self.proxy)
+
 
         # QSettings object for storing the UI configuration in the OS native repository (Registry for Windows, ini-file for Linux)
         # In Windows, parameters will be stored at HKEY_CURRENT_USER/SOFTWARE/KSP_Mod_Analyzer/App
@@ -87,9 +90,9 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Timers for cool down period to avoid sending to many requests to SpaceDock / Curse
         self.spacedock_timer = QtCore.QTimer()
-        self.spacedock_cooldown = 5000
+        self.spacedock_cooldown = 60000
         self.curse_timer = QtCore.QTimer()
-        self.curse_cooldown = 5000
+        self.curse_cooldown = 60000
 
         # Connect signals and slots and initialize UI values
         self.setup_ui_logic()
@@ -100,6 +103,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
     def setup_ui_logic(self):
         """Defines QT signal and slot connections and initializes UI values."""
+
+        # Update filter when text is changed
+        self.ui.lineEdit.textChanged.connect(self.proxy.setFilterRegExp)
+        self.ui.lineEdit.textChanged.connect(
+            lambda: self.ui.labelNumberOfRecords.setText(str(self.proxy.rowCount()) + ' mods found'))
 
         # Add status bar
         self.statusBar = QtWidgets.QStatusBar()
@@ -122,6 +130,8 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # Connect combo box event and update database model with current selected value in the combo box
         self.ui.comboBoxSelectData.currentIndexChanged.connect(
             lambda: self.update_db_model(self.ui.comboBoxSelectData.currentText()))
+        self.ui.comboBoxSelectData.currentIndexChanged.connect(
+            lambda: self.ui.lineEdit.textChanged.emit(self.ui.lineEdit.text()))
 
         # Connect exception signals to show an exception message from running threads,
         # This is needed as it's not possible to show a message box widget from the QThread directly
@@ -266,11 +276,15 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         elif query_type == 'Mods only on SpaceDock':
             sql = 'SELECT Mod, SpaceDock, Source, Forum ' \
                   'FROM Total ' \
-                  'WHERE Spacedock IS NOT NULL AND Curse IS NULL'
+                  'WHERE Spacedock IS NOT NULL AND Curse IS NULL AND CKAN IS NULL'
         elif query_type == 'Mods only on Curse':
             sql = 'SELECT Mod, Curse, Source, Forum ' \
                   'FROM Total ' \
-                  'WHERE Spacedock IS NULL AND Curse IS NOT NULL'
+                  'WHERE Curse IS NOT NULL AND Spacedock IS NULL AND CKAN IS NULL'
+        elif query_type == 'Mods only on CKAN':
+            sql = 'SELECT Mod, CKAN, Source, Forum ' \
+                  'FROM Total ' \
+                  'WHERE CKAN IS NOT NULL AND Curse IS NULL AND Spacedock IS NULL'
         else:
             self.qt_db.close()
             raise Exception('Invalid query type: "' + query_type + '" for QTableView')
@@ -296,8 +310,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.model.fetchMore()
 
         # Update number of mods displayed
-        rows = self.model.rowCount()
-        self.ui.labelNumberOfRecords.setText('<font color="Blue">' + str(rows))
+        self.ui.labelNumberOfRecords.setText(str(self.model.rowCount()) + ' mods found')
 
         # Close database
         self.qt_db.close()
