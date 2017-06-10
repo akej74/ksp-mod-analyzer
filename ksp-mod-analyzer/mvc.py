@@ -109,9 +109,9 @@ class CustomModel(QtSql.QSqlQueryModel):
 
         if role == QtCore.Qt.DisplayRole:
 
-            if 'github' in value:
+            if 'github.com' in value:
                 return '<a href="' + value + '">GitHub</a>'
-            elif 'forum' in value:
+            elif 'forum.kerbalspaceprogram' in value:
                 return '<a href="' + value + '">KSP Forum</a>'
             elif 'youtube' in value:
                 return '<a href="' + value + '">YouTube</a>'
