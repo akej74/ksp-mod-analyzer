@@ -186,6 +186,9 @@ def get_curse_mods(soup):
 
     # Empty dict to hold the mod data
     mods = {}
+    mod_name = ''
+    mod_url = ''
+    ksp_version = ''
 
     # One UL tag per mod
     for ultag in soup.find_all('ul', 'group'):
