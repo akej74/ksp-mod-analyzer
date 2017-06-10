@@ -48,6 +48,7 @@ class CKANThread(QtCore.QThread):
 
         # Wait for the thread to stop
         self.wait()
+        self.notify_progress_signal.emit(0)
         self.cancelled_signal.emit('ckan')
         print('CKAN thread stopped')
 
@@ -64,8 +65,9 @@ class CKANThread(QtCore.QThread):
             # Update database table 'Total'
             helpers.update_total_mods(self.db_file)
 
-            # Only emit finished signal if job was not cancelled (i.e. 'keep_running' is still True)
+            # Only emit signals if job was not cancelled (i.e. 'keep_running' is still True)
             if self.keep_running:
+                self.notify_progress_signal.emit(100)
                 self.finished_signal.emit('ckan')
 
         # Exception handling:
@@ -96,7 +98,7 @@ class CKANThread(QtCore.QThread):
 
         else:
             # Download the CKAN repo (tar file)
-            download_ckan(CKAN_REPO)
+            self.download_ckan(CKAN_REPO)
 
             raw_mods = process_ckan('data/master.tar.gz')
 
@@ -115,15 +117,24 @@ class CKANThread(QtCore.QThread):
             mod_versions = sorted(raw_mods_filtered[id].keys())
             highest_mod_version = helpers.get_highest_version(mod_versions)
 
-def download_ckan(url):
-    """Downloads the CKAN repo."""
+    def download_ckan(self, url):
+        """Downloads the CKAN repo."""
 
-    print('Downloading CKAN repo...')
-    with open('data/master.tar.gz', 'wb') as f:
-        r = requests.get(url)
-        f.write(r.content)
-        print('CKAN repo downloaded')
-        print()
+        print('Downloading CKAN repo...')
+
+        progress_value = 3
+        self.notify_progress_signal.emit(progress_value)
+
+        r = requests.get(url, stream=True)
+        with open('data/master.tar.gz', 'wb') as f:
+            for chunk in r.iter_content(chunk_size=20000):
+                progress_value += 1
+                # Prevent signal from beeing emitted if the run was cancelled
+                if self.keep_running:
+                    self.notify_progress_signal.emit(progress_value)
+                f.write(chunk)
+            print('CKAN repo downloaded')
+            print()
 
 def process_ckan(file_name):
     """Processes the CKAN repo file and returns a dict of raw mods data."""
@@ -209,14 +220,8 @@ def filter_raw_mods(raw_mods):
     """
 
     raw_mods_filtered = defaultdict(dict)
-
-    # Iterate over each mod id (unique mod identifier)
-
     all_ksp_versions = []
     all_mod_versions = []
-
-    print('Total raw mods')
-    print(len(raw_mods))
 
     for id in sorted(raw_mods.keys()):
         ksp_versions = []
@@ -232,15 +237,8 @@ def filter_raw_mods(raw_mods):
         # Iterate over all mod versions again and store the mod versions that have the highest KSP version
         for mod_version in raw_mods[id].keys():
             if raw_mods[id][mod_version][0] == highest_ksp_version:
-                #print('Mod version "{}" match for highest KSP version "{}"'.format(mod_version, raw_mods[id][mod_version][0]))
                 all_ksp_versions.append((raw_mods[id][mod_version][0]))
                 raw_mods_filtered[id][mod_version] = raw_mods[id][mod_version]
-
-    sorted_all_mod_versions = sorted(list(set(all_mod_versions)), key=str.lower)
-    sorted_all_ksp_versions = sorted(list(set(all_ksp_versions)), key=str.lower)
-
-    #for item in sorted_all_mod_versions:
-    #    print(item)
 
     return raw_mods_filtered
 
