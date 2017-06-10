@@ -13,11 +13,21 @@ Analyze Kerbal Space Program mods on SpaceDock, Curse and CKAN repositories.
   - Show all mods with aggregated metadata on one page
   - List mods for a specific repository (with aggregated metadata from other repositories if available)
   - List mods that only exists on a specific repository
- 
+
  Now you can get a clear overview all all mods and the status in each repository, including easy access to relevant forum threads and source code.
 
 ### Stand-alone release
 A stand-alone version of KSP Mod Analyzer can be downloaded from the "Releases" tab. Built with PyInstaller and can be run without having Python installed.
+
+### Running on Linux
+
+```
+git clone https://github.com/akej74/ksp-mod-analyzer.git
+cd ksp-mod-analyzer
+python3 ksp-mod-analyzer/main.py
+```
+
+A `data` directory will be created in the current working directory to cache the downloads, so you should run it from the same directory each time.
 
 ### Design
 - Python 3 with PyQt 5 for the user interface
