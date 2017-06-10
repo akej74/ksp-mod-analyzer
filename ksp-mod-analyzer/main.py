@@ -57,23 +57,21 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.qt_db.setDatabaseName(self.db_file)
 
         # Define custom delegate
-        self.delegate = mvc.CustomDelegate()
-        self.ui.tableView.setItemDelegate(self.delegate)
+        delegate = mvc.CustomDelegate()
+        self.ui.tableView.setItemDelegate(delegate)
 
         # Define custom database model
         self.model = mvc.CustomModel()
 
         # Define proxy (needed for sorting in the custom QTableView)
-        #proxy = QtCore.QSortFilterProxyModel()
         proxy = mvc.CustomProxy()
         proxy.setSortCaseSensitivity(QtCore.Qt.CaseInsensitive)
         proxy.setSourceModel(self.model)
-
-        # Configure model for table view
         self.ui.tableView.setModel(proxy)
 
         # QSettings object for storing the UI configuration in the OS native repository (Registry for Windows, ini-file for Linux)
         # In Windows, parameters will be stored at HKEY_CURRENT_USER/SOFTWARE/KSP_Mod_Analyzer/App
+        # Currently not in use
         self.config = QtCore.QSettings('KSP_Mod_Analyzer', 'App')
 
         # Read saved UI configuration
@@ -93,7 +91,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.curse_timer = QtCore.QTimer()
         self.curse_cooldown = 5000
 
-
         # Connect signals and slots and initialize UI values
         self.setup_ui_logic()
 
@@ -111,7 +108,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         # Connect mouse hover over link event for updating status bar with URL
         self.ui.tableView.mouse_hover.connect(self.statusBar.showMessage)
 
-        # Enable sorting indicator on colums
+        # Enable sorting indicator on columns
         self.ui.tableView.horizontalHeader().setSortIndicatorShown(True)
 
         # Connect link activated event to open the default web browser
@@ -161,7 +158,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.spacedock_thread.start()
 
     def update_curse(self):
-        """Updates the UI and starts SpaceDock processing thread."""
+        """Updates the UI and starts Curse processing thread."""
 
         # Change functionality of "Update Curse" button to "Cancel"
         self.ui.pushButtonCurse.disconnect()
@@ -193,7 +190,6 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             self.ui.pushButtonSpacedock.setText('Update SpaceDock')
             self.ui.pushButtonSpacedock.setEnabled(False)
             self.spacedock_timer.singleShot(self.spacedock_cooldown, lambda: self.ui.pushButtonSpacedock.setEnabled(True))
-
 
         if sender == 'curse':
             self.ui.pushButtonCurse.disconnect()
@@ -253,17 +249,28 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Define SQL queries
         if query_type == 'All mods':
-            sql = 'SELECT Mod, Spacedock, Curse, CKAN, Source, Forum FROM Total'
+            sql = 'SELECT Mod, Spacedock, Curse, CKAN, Source, Forum ' \
+                  'FROM Total'
         elif query_type == 'All mods on SpaceDock':
-            sql = 'SELECT Mod, SpaceDock, Source, Forum FROM Total WHERE SpaceDock IS NOT NULL'
+            sql = 'SELECT Mod, SpaceDock, Source, Forum ' \
+                  'FROM Total ' \
+                  'WHERE SpaceDock IS NOT NULL'
         elif query_type == 'All mods on Curse':
-            sql = 'SELECT Mod, Curse FROM Total WHERE Curse IS NOT NULL'
+            sql = 'SELECT Mod, Curse, Source, Forum ' \
+                  'FROM Total ' \
+                  'WHERE Curse IS NOT NULL'
         elif query_type == 'All mods on CKAN':
-            sql = 'SELECT Mod, CKAN FROM Total WHERE CKAN IS NOT NULL'
+            sql = 'SELECT Mod, CKAN, Source, Forum ' \
+                  'FROM Total ' \
+                  'WHERE CKAN IS NOT NULL'
         elif query_type == 'Mods only on SpaceDock':
-            sql = 'SELECT Mod, SpaceDock FROM Total WHERE Spacedock IS NOT NULL AND Curse IS NULL'
+            sql = 'SELECT Mod, SpaceDock, Source, Forum ' \
+                  'FROM Total ' \
+                  'WHERE Spacedock IS NOT NULL AND Curse IS NULL'
         elif query_type == 'Mods only on Curse':
-            sql = 'SELECT Mod, Curse FROM Total WHERE Spacedock IS NULL AND Curse IS NOT NULL'
+            sql = 'SELECT Mod, Curse, Source, Forum ' \
+                  'FROM Total ' \
+                  'WHERE Spacedock IS NULL AND Curse IS NOT NULL'
         else:
             self.qt_db.close()
             raise Exception('Invalid query type: "' + query_type + '" for QTableView')
@@ -279,9 +286,9 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Set fixed width for first column
         self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Interactive)
-        self.ui.tableView.horizontalHeader().resizeSection(0, 500)
+        self.ui.tableView.horizontalHeader().resizeSection(0, 400)
 
-        # Stretch last column to fill up all available space
+        # Disable strtch in last column
         self.ui.tableView.horizontalHeader().setStretchLastSection(False)
 
         # Fetch all available records
