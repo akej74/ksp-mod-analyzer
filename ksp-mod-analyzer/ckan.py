@@ -105,10 +105,9 @@ class CKANThread(QtCore.QThread):
             # Write raw mods data to file
             helpers.write_to_disk('data/ckan.data', raw_mods)
 
-        # TODO: Process and sort raw mods
-        #print_raw_mod(raw_mods, 'ShuttleLiftingBodyCormorantAeronology')
-
         raw_mods_filtered = filter_raw_mods(raw_mods)
+
+        mods = {}
 
         # Iterate over each mod id
         for id in sorted(raw_mods_filtered.keys(), key=str.lower):
@@ -117,11 +116,24 @@ class CKANThread(QtCore.QThread):
             mod_versions = sorted(raw_mods_filtered[id].keys())
             highest_mod_version = helpers.get_highest_version(mod_versions)
 
+            ksp_version = raw_mods_filtered[id][highest_mod_version][0]
+            mod_name = raw_mods_filtered[id][highest_mod_version][1]
+            source = raw_mods_filtered[id][highest_mod_version][2]
+            forum = raw_mods_filtered[id][highest_mod_version][3]
+
+            mods[mod_name] = [ksp_version, source, forum]
+
+        #raw_mods[identifier][mod_version] = [ksp_version, mod_name, source, forum, kerbalstuff, spacedock]
+
+        # Update the database
+        helpers.update_db('CKAN', mods, self.db_file)
+
     def download_ckan(self, url):
         """Downloads the CKAN repo."""
 
         print('Downloading CKAN repo...')
 
+        # Initial value of 3% to indicate processing has started
         progress_value = 3
         self.notify_progress_signal.emit(progress_value)
 
@@ -129,7 +141,7 @@ class CKANThread(QtCore.QThread):
         with open('data/master.tar.gz', 'wb') as f:
             for chunk in r.iter_content(chunk_size=20000):
                 progress_value += 1
-                # Prevent signal from beeing emitted if the run was cancelled
+                # Avoid emitting signal if the run was cancelled
                 if self.keep_running:
                     self.notify_progress_signal.emit(progress_value)
                 f.write(chunk)
