@@ -136,13 +136,12 @@ def update_total_mods(db_file):
 def update_db(table, mods, db_file):
     """Updates the database with mod data for SpaceDock, Curse or CKAN."""
 
-    # TODO: Sort lowercase
     with contextlib.closing(sqlite3.connect(db_file, timeout=1)) as con:
          with con as cur:
             if table == 'Curse':
                 print("Updating Curse database...")
                 cur.execute('DELETE FROM Curse')
-                for mod_name in sorted(mods.keys()):
+                for mod_name in sorted(mods.keys(), key=str.lower):
                     cur.execute('INSERT INTO Curse (Mod, KSP_version, URL) '
                                 'VALUES (:mod, :version, :url)',
                                 {'mod': mod_name,
@@ -152,7 +151,7 @@ def update_db(table, mods, db_file):
             if table == 'SpaceDock':
                 print("Updating SpaceDock database...")
                 cur.execute('DELETE FROM SpaceDock')
-                for mod_name in sorted(mods.keys()):
+                for mod_name in sorted(mods.keys(), key=str.lower):
                     cur.execute('INSERT INTO SpaceDock (Mod, KSP_version, Source, Forum, Mod_Id, URL) '
                                 'VALUES (:mod, :version, :source, :forum, :mod_id, :url)',
                                 {'mod': mod_name,
@@ -166,13 +165,13 @@ def update_db(table, mods, db_file):
                 # raw_mods[identifier][mod_version] = [ksp_version, mod_name, source, forum, kerbalstuff, spacedock]
                 print("Updating CKAN database...")
                 cur.execute('DELETE FROM CKAN')
-
-
-                # for mod_name in sorted(mods.keys()):
-                #     cur.execute('INSERT INTO CKAN (Mod, KSP_version) '
-                #                 'VALUES (:mod, :version)',
-                #                 {'mod': mod_name,
-                #                  'version': mods[mod_name][0]})
+                for mod_name in sorted(mods.keys(), key=str.lower):
+                    cur.execute('INSERT INTO Curse (Mod, KSP_version, Source, Forum) '
+                                'VALUES (:mod, :version, :source, :forum)',
+                                {'mod': mod_name,
+                                 'version': mods[mod_name][0],
+                                 'source': mods[mod_name][1],
+                                 'forum': mods[mod_name][2]})
 
 def get_records(table, db_file):
     """Gets the number of rows in a table."""
@@ -183,11 +182,12 @@ def get_records(table, db_file):
         if table == 'SpaceDock':
             cur.execute('SELECT COUNT(Mod) FROM Total WHERE SpaceDock IS NOT NULL')
             rows = cur.fetchone()[0]
-
         elif table == 'Curse':
             cur.execute('SELECT COUNT(Mod) FROM Total WHERE Curse IS NOT NULL')
             rows = cur.fetchone()[0]
-
+        elif table == 'CKAN':
+            cur.execute('SELECT COUNT(Mod) FROM Total WHERE CKAN IS NOT NULL')
+            rows = cur.fetchone()[0]
         else:
             return 0
 
@@ -204,35 +204,6 @@ def get_file_modification_time(file_name):
     # Get the date in a human readable form from the timestamp
     last_modified_date = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S')
     return last_modified_date
-
-def clean_list(list):
-    """Cleans a list of items:
-       - Remove leading and trailing whitespace
-       - Remove leading version info, e.g. [x.y.z], [1.2], (0.90)
-       - Sort the list non case sensitive
-    """
-
-    cleaned_list = []
-
-    for item in list:
-        # Strip leading and trailing whitespace
-        clean_item = item.strip()
-
-        # Regexp for removing all info enclosed in [] at the start of the string, e.g. [1.0.5], [1.x] etc
-        regexp = re.compile(r'^\[.*?\]')
-        clean_item = re.sub(regexp, '', clean_item)
-
-        # Regexp for removing all info enclosed in () at the start of the string, e.g. (0.90) etc
-        regexp = re.compile(r'^\(.*?\)')
-        clean_item = re.sub(regexp, '', clean_item)
-
-        # Strip leading and trailing whitespace again (after regexp cleaning)
-        cleaned_list.append(clean_item.strip())
-
-        # Sort the list non case sensitive
-        cleaned_list.sort(key=str.lower)
-
-    return cleaned_list
 
 def clean_item(item):
     """Cleans an item (string):
