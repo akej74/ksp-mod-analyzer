@@ -104,11 +104,14 @@ def update_total_mods(db_file):
         cur.execute('SELECT Mod, KSP_version, Source, Forum, URL FROM Curse')
         curse = {i[0]: [i[1], i[2], i[3], i[4]] for i in cur.fetchall()}
 
-        # TODO: Add CKAN
+        # Get a list of all CKAN mods
+        cur.execute('SELECT Mod, KSP_version, Source, Forum FROM CKAN')
+        ckan = {i[0]: [i[1], i[2], i[3]] for i in cur.fetchall()}
 
         # Get a sorted list of all unique mods (duplicates removed by the set)
-        total_mods = sorted(set(list(spacedock.keys()) + list(curse.keys())), key=str.lower)
-        print("Total mods", len(total_mods))
+
+        total_mods = sorted(set(list(spacedock.keys()) + list(curse.keys()) + list(ckan.keys())), key=str.lower)
+        print("### Total mods", len(total_mods))
 
         # Initlialize 'Total' table with all available mods
         for mod in total_mods:
@@ -132,6 +135,17 @@ def update_total_mods(db_file):
                             'WHERE Mod =:mod',
                             {'mod': mod,
                              'version_link': curse[mod][3]})
+
+        # Update with CKAN last, as "Source" and "Forum" are likely more recently updated than SpaceDock data
+        for mod in total_mods:
+            if mod in ckan.keys():
+                cur.execute('UPDATE Total '
+                            'SET CKAN =:version_no_link, Source=:source, Forum =:forum '
+                            'WHERE Mod =:mod',
+                            {'mod': mod,
+                             'version_no_link': ckan[mod][0],
+                             'source': ckan[mod][1],
+                             'forum': ckan[mod][2]})
 
 def update_db(table, mods, db_file):
     """Updates the database with mod data for SpaceDock, Curse or CKAN."""
@@ -166,7 +180,7 @@ def update_db(table, mods, db_file):
                 print("Updating CKAN database...")
                 cur.execute('DELETE FROM CKAN')
                 for mod_name in sorted(mods.keys(), key=str.lower):
-                    cur.execute('INSERT INTO Curse (Mod, KSP_version, Source, Forum) '
+                    cur.execute('INSERT INTO CKAN (Mod, KSP_version, Source, Forum) '
                                 'VALUES (:mod, :version, :source, :forum)',
                                 {'mod': mod_name,
                                  'version': mods[mod_name][0],
