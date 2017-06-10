@@ -149,22 +149,30 @@ class CustomModel(QtSql.QSqlQueryModel):
 
 class CustomProxy(QtCore.QSortFilterProxyModel):
     """Custom proxy to handle sorting of data."""
+
     def __init__(self, parent=None):
         self.parent = parent
         super().__init__(parent)
-        self.r = re.compile(r'<a href=".*">(.*)</a>')
+        #self.r = re.compile(r'<a href=".*">(.*)</a>')
+        self.regexp = re.compile(r'">(.*)</a>')
+
 
     def lessThan(self, left, right):
 
         # If the data from the model in an HTML link, filter out the link text for sorting
         # E.g. <a href="https://spacedock...>1.2.2</a>
-        m_left = re.search(self.r, left.data())
-        m_right = re.search(self.r, right.data())
+
+        l = left.data()
+        r = right.data()
+
+        m_left = re.search(self.regexp, l)
+        m_right = re.search(self.regexp, r)
 
         if m_left and m_right:
-            lvalue = m_left.group(1)
-            rvalue = m_right.group(1)
+           lvalue = m_left.group(1)
+           rvalue = m_right.group(1)
+
         else:
-            lvalue = left.data().lower()
-            rvalue = right.data().lower()
+            lvalue = l.lower()
+            rvalue = r.lower()
         return lvalue < rvalue
