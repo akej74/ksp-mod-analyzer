@@ -16,10 +16,10 @@ Analyze Kerbal Space Program mods on SpaceDock, Curse and CKAN repositories.
 
  Now you can get a clear overview all all mods and the status in each repository, including easy access to relevant forum threads and source code.
 
-### Stand-alone release
+### Stand-alone release for Windows
 A stand-alone version of KSP Mod Analyzer can be downloaded from the "Releases" tab. Built with PyInstaller and can be run without having Python installed.
 
-### Running on Linux
+### Running the Python application on Linux/Windows
 
 ```
 git clone https://github.com/akej74/ksp-mod-analyzer.git
