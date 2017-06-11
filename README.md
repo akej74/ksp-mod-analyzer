@@ -27,7 +27,7 @@ cd ksp-mod-analyzer
 python3 ksp-mod-analyzer/main.py
 ```
 
-A `data` directory will be created in the current working directory to cache the downloads, so you should run it from the same directory each time.
+A `data` directory will be created in the current working directory to cache the downloads, so you should run it from the same directory each time. Please see "requirements.txt" for required Python modules to install.
 
 ### Design
 - Python 3 with PyQt 5 for the user interface
