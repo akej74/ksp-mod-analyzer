@@ -22,7 +22,7 @@ A stand-alone version of KSP Mod Analyzer can be downloaded from the "Releases" 
 ### Running the Python application on Linux/Windows
 - Install latest version of Python 3
 - Optional but recommended: Install PyCharm IDE
-- Install the following pagages:
+- Install the following packages:
   - `pip install PyQt5`
   - `pip install requests`
   - `pip install beautifulsoup4`
@@ -33,7 +33,12 @@ A stand-alone version of KSP Mod Analyzer can be downloaded from the "Releases" 
   - `cd ksp-mod-analyzer`
   - `python3 ksp-mod-analyzer/main.py`
 
-A `data` directory will be created in the current working directory to cache the downloads, so you should run it from the same directory each time. Please see "requirements.txt" for required Python modules to install.
+A `data` directory will be created in the current working directory to cache the downloads, so you should run it from the same directory each time.
 
-### Design
+### Design and note about "QT Designer"
 - Python 3 with PyQt5 for the user interface
+- For editing the User Interface (mainwindow.ui), install QT Designer as follows:
+  - Install latest QT5 open source suite from [QT main site](https://www.qt.io/)
+  - In the install wizard, make sure you include the "Qt 5.3 MinGW" component
+  - QT Designer will be installed in C:\Qt\5.x\mingw53_32\bin\designer.exe
+  - Note that the executable is named "designer.exe"
