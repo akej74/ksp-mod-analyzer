@@ -20,14 +20,20 @@ Analyze Kerbal Space Program mods on SpaceDock, Curse and CKAN repositories.
 A stand-alone version of KSP Mod Analyzer can be downloaded from the "Releases" tab. Built with PyInstaller and can be run without having Python installed.
 
 ### Running the Python application on Linux/Windows
+- Install latest version of Python 3
+- Optional but recommended: Install PyCharm IDE
+- Install the following pagages:
+  - `pip install PyQt5`
+  - `pip install requests`
+  - `pip install beautifulsoup4`
+  - `pip install natsort`
 
-```
-git clone https://github.com/akej74/ksp-mod-analyzer.git
-cd ksp-mod-analyzer
-python3 ksp-mod-analyzer/main.py
-```
+- Clone the repo and run as follows (or run from PyCharm)
+  - `git clone https://github.com/akej74/ksp-mod-analyzer.git`
+  - `cd ksp-mod-analyzer`
+  - `python3 ksp-mod-analyzer/main.py`
 
 A `data` directory will be created in the current working directory to cache the downloads, so you should run it from the same directory each time. Please see "requirements.txt" for required Python modules to install.
 
 ### Design
-- Python 3 with PyQt 5 for the user interface
+- Python 3 with PyQt5 for the user interface
