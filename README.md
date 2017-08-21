@@ -37,8 +37,8 @@ A `data` directory will be created in the current working directory to cache the
 
 ### Design and note about "QT Designer"
 - Python 3 with PyQt5 for the user interface
-- For editing the User Interface (mainwindow.ui), install QT Designer as follows:
+- For editing the User Interface (`mainwindow.ui`), install QT Designer as follows:
   - Install latest QT5 open source suite from [QT main site](https://www.qt.io/)
   - In the install wizard, make sure you include the "Qt 5.3 MinGW" component
-  - QT Designer will be installed in C:\Qt\5.x\mingw53_32\bin\designer.exe
+  - QT Designer will be installed in `C:\Qt\5.x\mingw53_32\bin\designer.exe`
   - Note that the executable is named "designer.exe"
