@@ -35,10 +35,11 @@ A stand-alone version of KSP Mod Analyzer can be downloaded from the "Releases" 
 
 A `data` directory will be created in the current working directory to cache the downloads, so you should run it from the same directory each time.
 
-### Design and note about "QT Designer"
-- Python 3 with PyQt5 for the user interface
+### Note about "QT Designer"
 - For editing the User Interface (`mainwindow.ui`), install QT Designer as follows:
   - Install latest QT5 open source suite from [QT main site](https://www.qt.io/)
   - In the install wizard, make sure you include the "Qt 5.3 MinGW" component
   - QT Designer will be installed in `C:\Qt\5.x\mingw53_32\bin\designer.exe`
   - Note that the executable is named "designer.exe"
+- To convert the `mainwindow.ui` to `mainwindow.py`run the following command:
+  - `<python installation directory>\Scripts\pyuic5.exe mainwindow.ui -o mainwindow.py`
