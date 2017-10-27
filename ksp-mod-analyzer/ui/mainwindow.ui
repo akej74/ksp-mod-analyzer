@@ -297,6 +297,54 @@ border-top: 1px outset grey;
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="font">
+            <font>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>CSV Delimiter:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBoxDelimiter">
+           <property name="font">
+            <font>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <item>
+            <property name="text">
+             <string>,</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\t</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>' '</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>;</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonExportCSV">
+           <property name="text">
+            <string>Export CSV</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item row="1" column="0">

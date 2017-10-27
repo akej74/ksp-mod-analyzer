@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.8.2
+# Created by: PyQt5 UI code generator 5.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -153,6 +153,25 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.labelNumberOfRecords)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem3)
+        self.label_5 = QtWidgets.QLabel(self.groupBoxData)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.label_5.setFont(font)
+        self.label_5.setObjectName("label_5")
+        self.horizontalLayout.addWidget(self.label_5)
+        self.comboBoxDelimiter = QtWidgets.QComboBox(self.groupBoxData)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.comboBoxDelimiter.setFont(font)
+        self.comboBoxDelimiter.setObjectName("comboBoxDelimiter")
+        self.comboBoxDelimiter.addItem("")
+        self.comboBoxDelimiter.addItem("")
+        self.comboBoxDelimiter.addItem("")
+        self.comboBoxDelimiter.addItem("")
+        self.horizontalLayout.addWidget(self.comboBoxDelimiter)
+        self.pushButtonExportCSV = QtWidgets.QPushButton(self.groupBoxData)
+        self.pushButtonExportCSV.setObjectName("pushButtonExportCSV")
+        self.horizontalLayout.addWidget(self.pushButtonExportCSV)
         self.gridLayout_4.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         self.tableView = CustomTableView(self.groupBoxData)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -289,6 +308,12 @@ class Ui_MainWindow(object):
         self.comboBoxSelectData.setItemText(6, _translate("MainWindow", "Mods only on CKAN"))
         self.label_8.setText(_translate("MainWindow", "Filter mods:"))
         self.labelNumberOfRecords.setText(_translate("MainWindow", "---"))
+        self.label_5.setText(_translate("MainWindow", "CSV Delimiter:"))
+        self.comboBoxDelimiter.setItemText(0, _translate("MainWindow", ","))
+        self.comboBoxDelimiter.setItemText(1, _translate("MainWindow", "\\t"))
+        self.comboBoxDelimiter.setItemText(2, _translate("MainWindow", "\' \'"))
+        self.comboBoxDelimiter.setItemText(3, _translate("MainWindow", ";"))
+        self.pushButtonExportCSV.setText(_translate("MainWindow", "Export CSV"))
         self.groupBoxStatus.setTitle(_translate("MainWindow", "Status"))
         self.label.setText(_translate("MainWindow", "SpaceDock mods"))
         self.labelLastUpdateSpacedock.setText(_translate("MainWindow", "<N/A>"))
