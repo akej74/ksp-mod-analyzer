@@ -171,8 +171,11 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             rows = self.model.rowCount()
             columns = self.model.columnCount()
 
+            # Get delimiter from combo box
+            delimiter_char = self.ui.comboBoxDelimiter.currentText()
+
             with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-                writer = csv.writer(csvfile, delimiter=',', escapechar='\\', doublequote=False, quoting=csv.QUOTE_ALL)
+                writer = csv.writer(csvfile, delimiter=delimiter_char, escapechar='\\', doublequote=False, quoting=csv.QUOTE_ALL)
                 #writer = csv.writer(csvfile, delimiter=',', doublequote=True, quoting=csv.QUOTE_ALL)
 
                 # Write the header
