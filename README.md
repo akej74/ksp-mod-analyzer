@@ -13,6 +13,7 @@ Analyze Kerbal Space Program mods on SpaceDock, Curse and CKAN repositories.
   - Show all mods with aggregated metadata on one page
   - List mods for a specific repository (with aggregated metadata from other repositories if available)
   - List mods that only exists on a specific repository
+- CSV export
 
  Now you can get a clear overview all all mods and the status in each repository, including easy access to relevant forum threads and source code.
 
