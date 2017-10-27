@@ -4,6 +4,7 @@
     This is the main module of KSP Mod Analyzer. Implements the UI and business logic.
 """
 
+import csv
 import os
 import sys
 import webbrowser
@@ -17,7 +18,7 @@ import spacedock
 from PyQt5 import QtCore, QtWidgets, QtSql
 from ui.mainwindow import Ui_MainWindow
 
-PROGRAM_VERSION = '1.1.0'
+PROGRAM_VERSION = '1.1.1'
 DATA_DIR = 'data'
 
 # DISK_CACHE = True disables web parsing and reads data from a previous run from disk (for debugging)
@@ -126,6 +127,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         self.ui.pushButtonSpacedock.clicked.connect(self.update_spacedock)
         self.ui.pushButtonCurse.clicked.connect(self.update_curse)
         self.ui.pushButtonCKAN.clicked.connect(self.update_ckan)
+        self.ui.pushButtonExportCSV.clicked.connect(self.export_csv)
 
         # Connect combo box event and update database model with current selected value in the combo box
         self.ui.comboBoxSelectData.currentIndexChanged.connect(
@@ -156,6 +158,31 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Update data model for the QTableView
         self.update_db_model(self.ui.comboBoxSelectData.currentText())
+
+    def export_csv(self):
+        """Exports the current view to a CSV file."""
+
+        suggested_filename = "mod_export"
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File",
+                                                            QtCore.QDir.homePath() + "/" + suggested_filename + ".csv",
+                                                            "CSV Files (*.csv)")
+        if filename:
+            # Get rows and columns from data model
+            rows = self.model.rowCount()
+            columns = self.model.columnCount()
+
+            with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',', escapechar='\\', doublequote=False, quoting=csv.QUOTE_ALL)
+                #writer = csv.writer(csvfile, delimiter=',', doublequote=True, quoting=csv.QUOTE_ALL)
+
+                # Write the header
+                header = [self.model.headerData(column, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole) for column in range(columns)]
+                writer.writerow(header)
+
+                # Write the data records
+                for row in range(rows):
+                    fields = [self.model.data(self.model.index(row, column), QtCore.Qt.DisplayRole) for column in range(columns)]
+                    writer.writerow(fields)
 
     def update_spacedock(self):
         """Updates the UI and starts SpaceDock processing thread."""
