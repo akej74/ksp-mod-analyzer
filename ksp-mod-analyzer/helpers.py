@@ -236,6 +236,10 @@ def clean_item(item):
     regexp = re.compile(r'^\(.*?\)')
     cleaned_item = re.sub(regexp, '', cleaned_item)
 
+    # Regexp for removing all single and double quotes
+    regexp = re.compile(r'[\'\"]')
+    cleaned_item = re.sub(regexp, '', cleaned_item)
+
     # Strip leading and trailing whitespace again (after regexp cleaning)
     cleaned_item = cleaned_item.strip()
 
