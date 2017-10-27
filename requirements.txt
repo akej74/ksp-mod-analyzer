@@ -1,4 +1,4 @@
-requests==2.17.3
-natsort==5.0.3
-PyQt5==5.8.2
+requests==2.18.4
+natsort==5.1.0
+PyQt5==5.9
 beautifulsoup4==4.6.0
