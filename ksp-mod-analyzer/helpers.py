@@ -304,12 +304,12 @@ def show_error(message):
     message_box.setText(str(message))
     message_box.setWindowTitle("Error")
     message_box.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(":/icons/flying.png")))
-    message_box.setIcon(QtWidgets.QMessageBox.Critical)
-    message_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
-    message_box.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+    message_box.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+    message_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+    message_box.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
 
     #Show the window
-    message_box.exec_()
+    message_box.exec()
 
 def show_notification(message):
     """Displays "message" in a "Information" message box with 'OK' button."""
@@ -320,12 +320,12 @@ def show_notification(message):
     message_box.setText(message)
     message_box.setWindowTitle("Note")
     message_box.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(":/icons/grid.png")))
-    message_box.setIcon(QtWidgets.QMessageBox.Information)
-    message_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
-    message_box.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+    message_box.setIcon(QtWidgets.QMessageBox.Icon.Information)
+    message_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+    message_box.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
 
     #Show the window
-    message_box.exec_()
+    message_box.exec()
 
 def write_to_disk(filename, data):
     """Serializes data with pickle and writes to disk."""

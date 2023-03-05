@@ -3,7 +3,7 @@
     --------------
     This is the main module of KSP Mod Analyzer. Implements the UI and business logic.
 """
-
+    
 import csv
 import os
 import sys

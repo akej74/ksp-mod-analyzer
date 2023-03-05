@@ -44,7 +44,8 @@ class CustomTableView(QtWidgets.QTableView):
     def anchorAt(self, pos):
         index = self.indexAt(pos)
         if index.isValid():
-            delegate = self.itemDelegate(index)
+            # PyQt5: delegate = self.itemDelegate(index)
+            delegate = self.itemDelegateForIndex(index)
             if delegate:
                 itemRect = self.visualRect(index)
                 relativeClickPosition = pos - itemRect.topLeft()
@@ -63,8 +64,9 @@ class CustomDelegate(QtWidgets.QStyledItemDelegate):
         doc = QtGui.QTextDocument()
         doc.setHtml(html)
         textLayout = doc.documentLayout()
-        return textLayout.anchorAt(point)
-
+        # PyQt5: return textLayout.anchorAt(point)
+        return textLayout.anchorAt(QtCore.QPointF(point))
+        
     def paint(self, painter, option, index):
         options = QtWidgets.QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
