@@ -15,7 +15,7 @@ import helpers
 import mvc
 import settings
 import spacedock
-from PyQt5 import QtCore, QtWidgets, QtSql
+from PyQt6 import QtCore, QtWidgets, QtSql
 from ui.mainwindow import Ui_MainWindow
 
 PROGRAM_VERSION = '1.1.1'
@@ -66,10 +66,10 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
 
         # Define proxy (needed for sorting in the custom QTableView)
         self.proxy = mvc.CustomProxy()
-        self.proxy.setSortCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.proxy.setSortCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
         self.proxy.setSourceModel(self.model)
         self.proxy.setFilterKeyColumn(0)
-        self.proxy.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.proxy.setFilterCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
         self.ui.tableView.setModel(self.proxy)
 
 
@@ -106,7 +106,7 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
         """Defines QT signal and slot connections and initializes UI values."""
 
         # Update filter when text is changed
-        self.ui.lineEdit.textChanged.connect(self.proxy.setFilterRegExp)
+        self.ui.lineEdit.textChanged.connect(self.proxy.setFilterRegularExpression)
         self.ui.lineEdit.textChanged.connect(
             lambda: self.ui.labelNumberOfRecords.setText(str(self.proxy.rowCount()) + ' mods found'))
 
@@ -320,16 +320,16 @@ class KspModAnalyzer(QtWidgets.QMainWindow):
             raise Exception('Invalid query type: "' + query_type + '" for QTableView')
 
         # Set default sort order (first column)
-        self.ui.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)
+        self.ui.tableView.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
 
         # Update the model with SQL query
         self.model.setQuery(sql, self.qt_db)
 
         # Set all columns to stretch to available width
-        self.ui.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.ui.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         # Set fixed width for first column
-        self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Interactive)
+        self.ui.tableView.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.ui.tableView.horizontalHeader().resizeSection(0, 400)
 
         # Disable strtch in last column
@@ -428,4 +428,4 @@ if __name__ == "__main__":
     win.show()
 
     # Start QT application
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

@@ -9,7 +9,7 @@ import sys
 
 import helpers
 import requests
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 # How many mods to get on each page from SpaceDock API (30-500)
 MODS_PER_PAGE = 100

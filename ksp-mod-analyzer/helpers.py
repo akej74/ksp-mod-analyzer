@@ -16,7 +16,7 @@ import sys
 import traceback
 from datetime import datetime
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 from natsort import natsorted
 
 
@@ -268,12 +268,13 @@ def excepthook(excType, excValue, tracebackobj):
 
     error_box.setText(str(notice)+str(msg))
     error_box.setWindowTitle("KSP Mod Analyzer - unhandled exception")
-    error_box.setIcon(QtWidgets.QMessageBox.Critical)
-    error_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
-    error_box.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+    error_box.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+    error_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+    error_box.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+    #error_box.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
 
     # Show the window
-    error_box.exec_()
+    error_box.exec()
 
     # Exit the application
     sys.exit(1)

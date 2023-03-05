@@ -9,7 +9,7 @@ import sys
 
 import helpers
 import requests
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from bs4 import BeautifulSoup
 
 

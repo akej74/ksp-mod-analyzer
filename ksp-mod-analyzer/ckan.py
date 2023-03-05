@@ -11,7 +11,7 @@ from collections import defaultdict
 
 import helpers
 import requests
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 CKAN_REPO = 'https://github.com/KSP-CKAN/CKAN-meta/archive/master.tar.gz'
 

@@ -1,6 +1,6 @@
 import re
 
-from PyQt5 import QtCore, QtWidgets, QtGui, QtSql
+from PyQt6 import QtCore, QtWidgets, QtGui, QtSql
 
 
 class CustomTableView(QtWidgets.QTableView):
@@ -29,7 +29,7 @@ class CustomTableView(QtWidgets.QTableView):
             self._lastHoveredAnchor = anchor
             if self._lastHoveredAnchor:
                 self.mouse_hover.emit(anchor)
-                QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+                QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             else:
                 self.mouse_hover.emit('')
                 QtWidgets.QApplication.restoreOverrideCursor()
@@ -52,7 +52,7 @@ class CustomTableView(QtWidgets.QTableView):
                 # Adjustment for center aligned text
                 relativeClickPosition.setY(relativeClickPosition.y()-8)
 
-                html = self.model().data(index, QtCore.Qt.DisplayRole)
+                html = self.model().data(index, QtCore.Qt.ItemDataRole.DisplayRole)
                 return delegate.anchorAt(html, relativeClickPosition)
         return ''
 
@@ -78,10 +78,10 @@ class CustomDelegate(QtWidgets.QStyledItemDelegate):
         doc.setHtml(options.text)
         options.text = ''
 
-        style.drawControl(QtWidgets.QStyle.CE_ItemViewItem, options, painter)
+        style.drawControl(QtWidgets.QStyle.ControlElement.CE_ItemViewItem, options, painter)
         ctx = QtGui.QAbstractTextDocumentLayout.PaintContext()
 
-        textRect = style.subElementRect(QtWidgets.QStyle.SE_ItemViewItemText, options)
+        textRect = style.subElementRect(QtWidgets.QStyle.SubElement.SE_ItemViewItemText, options)
 
         painter.save()
 
@@ -104,10 +104,10 @@ class CustomDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class CustomModel(QtSql.QSqlQueryModel):
-    def data(self, index, role=QtCore.Qt.DisplayRole):
+    def data(self, index, role=QtCore.Qt.ItemDataRole.DisplayRole):
         value = super().data(index, role)
 
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
 
             if 'github.com' in value:
                 return '<a href="' + value + '">GitHub</a>'
